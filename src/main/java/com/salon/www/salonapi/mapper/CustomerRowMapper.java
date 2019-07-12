@@ -13,6 +13,7 @@ public class CustomerRowMapper implements RowMapper {
         customer.setFirstName(rs.getString("first_name"));
         customer.setLastName(rs.getString("last_name"));
         customer.setEmail(rs.getString("email"));
+        customer.setPhone(rs.getString("phone"));
 
         return customer;
     }

@@ -49,22 +49,24 @@ public class CustomerDAOImpl implements CustomerDAO {
 
     public void update(Customer customer, String[] params) {
         jdbcTemplate.update(
-                "UPDATE customers SET first_name=?, last_name=?, email=? WHERE customer_id=?",
+                "UPDATE customers SET first_name=?, last_name=?, email=?, phone=? WHERE customer_id=?",
                 new Object[] {
                         params[0],
                         params[1],
                         params[2],
+                        params[3],
                         customer.getId()
                 });
     }
 
     public void save(Customer customer) {
         jdbcTemplate.update(
-                "INSERT INTO customers(first_name, last_name, email) VALUES(?,?,?)",
+                "INSERT INTO customers(first_name, last_name, email, phone) VALUES(?,?,?,?)",
                 new Object[] {
                         customer.getFirstName(),
                         customer.getLastName(),
-                        customer.getEmail()
+                        customer.getEmail(),
+                        customer.getPhone()
                 });
 
 
