@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-@Repository("roleRepository")
+@Repository("roleDao")
 public class RoleDAOImpl implements RoleDAO {
 
     @Autowired
@@ -58,11 +58,11 @@ public class RoleDAOImpl implements RoleDAO {
     }
 
     @Override
-    public void update(Role role, String[] params) {
+    public void update(Role role) {
         jdbcTemplate.update(
                 "UPDATE roles SET name=? WHERE id=?",
                 new Object[] {
-                        params[0],
+                        role.getName(),
                         role.getId()
                 }
         );

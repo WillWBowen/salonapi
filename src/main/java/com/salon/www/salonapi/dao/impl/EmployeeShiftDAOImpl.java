@@ -2,13 +2,16 @@ package com.salon.www.salonapi.dao.impl;
 
 import com.salon.www.salonapi.dao.EmployeeShiftDAO;
 import com.salon.www.salonapi.mapper.EmployeeShiftRowMapper;
+import com.salon.www.salonapi.model.Employee;
 import com.salon.www.salonapi.model.EmployeeShift;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository("employeeShiftDao")
 public class EmployeeShiftDAOImpl implements EmployeeShiftDAO {
 
     @Autowired
@@ -49,14 +52,14 @@ public class EmployeeShiftDAOImpl implements EmployeeShiftDAO {
     }
 
     @Override
-    public void update(EmployeeShift employeeShift, String[] params) {
+    public void update(EmployeeShift employeeShift) {
         jdbcTemplate.update(
                 "UPDATE employee_shifts SET employees_id=?, day=?, start_time=?, end_time=? WHERE id=?",
                 new Object[] {
-                        params[0],
-                        params[1],
-                        params[2],
-                        params[3],
+                        employeeShift.getEmployeeId(),
+                        employeeShift.getDay(),
+                        employeeShift.getStartTime(),
+                        employeeShift.getEndTime(),
                         employeeShift.getId()
                 }
         );
@@ -69,5 +72,34 @@ public class EmployeeShiftDAOImpl implements EmployeeShiftDAO {
                 "DELETE FROM employee_shifts WHERE id = ?",
                 new Object[] {employeeShift.getId()}
         );
+    }
+
+    @Override
+    public List<EmployeeShift> getAllForEmployee(Employee employee) {
+        List<EmployeeShift> employeeShifts = jdbcTemplate.query(
+                "SELECT * FROM employee_shifts WHERE employees_id=?",
+                new Object[] {
+                    employee.getId()
+                },
+                new EmployeeShiftRowMapper()
+        );
+
+        return employeeShifts;
+    }
+
+    @Override
+    public Optional<EmployeeShift> getForEmployeeForDay(Employee employee, String day) {
+        Optional<EmployeeShift> employeeShift =
+                (Optional<EmployeeShift>) jdbcTemplate.queryForObject(
+                        "SELECT * FROM employee_shifts WHERE employees_id=? AND day=?",
+                        new Object[] {
+                                employee.getId(),
+                                day
+                        },
+                        new EmployeeShiftRowMapper()
+
+                );
+
+        return employeeShift;
     }
 }

@@ -1,8 +1,9 @@
-package com.salon.www.salonapi.service;
+package com.salon.www.salonapi.service.impl;
 
+import com.salon.www.salonapi.dao.RoleDAO;
 import com.salon.www.salonapi.model.Customer;
 import com.salon.www.salonapi.dao.CustomerDAO;
-import com.salon.www.salonapi.dao.impl.RoleDAOImpl;
+import com.salon.www.salonapi.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,7 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerDAO customerDao;
 
     @Autowired
-    private RoleDAOImpl roleDAOImpl;
+    private RoleDAO roleDAO;
 
     @Override
     public List<Customer> getCustomers() {
@@ -37,10 +38,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     public void updateCustomer(Customer customer) {
-        customerDao.update(customer, new String[]{
-                customer.getFirstName(),
-                customer.getLastName(),
-                customer.getEmail()});
+        customerDao.update(customer);
     }
 
     public void createCustomer(Customer customer) {

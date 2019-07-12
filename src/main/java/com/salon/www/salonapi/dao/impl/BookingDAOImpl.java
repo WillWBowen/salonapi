@@ -5,10 +5,12 @@ import com.salon.www.salonapi.mapper.BookingRowMapper;
 import com.salon.www.salonapi.model.Booking;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository("bookingDao")
 public class BookingDAOImpl implements BookingDAO {
 
     @Autowired
@@ -49,14 +51,14 @@ public class BookingDAOImpl implements BookingDAO {
     }
 
     @Override
-    public void update(Booking booking, String[] params) {
+    public void update(Booking booking) {
         jdbcTemplate.update(
                 "UPDATE bookings SET customers_id=?, employees_id=?, booking_time=?, end_time=? WHERE id=?",
                 new Object[] {
-                        params[0],
-                        params[1],
-                        params[2],
-                        params[3],
+                        booking.getCustomerid(),
+                        booking.getEmployeeid(),
+                        booking.getBookingTime(),
+                        booking.getEndTime(),
                         booking.getId()
                 });
     }

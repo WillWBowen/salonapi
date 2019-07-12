@@ -39,12 +39,12 @@ public class UserDAOImpl implements UserDAO {
         return users;
     }
 
-    public void update(UserDto user, String[] params) {
+    public void update(UserDto user) {
         jdbcTemplate.update(
                 "UPDATE users SET username=?, password=? WHERE id=?",
                 new Object[] {
-                        params[0],
-                        params[1],
+                        user.getUsername(),
+                        user.getPassword(),
                         user.getId()
                 }
         );

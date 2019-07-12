@@ -47,14 +47,14 @@ public class CustomerDAOImpl implements CustomerDAO {
         );
     }
 
-    public void update(Customer customer, String[] params) {
+    public void update(Customer customer) {
         jdbcTemplate.update(
                 "UPDATE customers SET first_name=?, last_name=?, email=?, phone=? WHERE customer_id=?",
                 new Object[] {
-                        params[0],
-                        params[1],
-                        params[2],
-                        params[3],
+                        customer.getFirstName(),
+                        customer.getLastName(),
+                        customer.getEmail(),
+                        customer.getPhone(),
                         customer.getId()
                 });
     }

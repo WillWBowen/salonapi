@@ -5,10 +5,12 @@ import com.salon.www.salonapi.mapper.CapabilityRowMapper;
 import com.salon.www.salonapi.model.Capability;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository("capabilityDao")
 public class CapabilityDAOImpl implements CapabilityDAO {
 
     @Autowired
@@ -46,11 +48,11 @@ public class CapabilityDAOImpl implements CapabilityDAO {
     }
 
     @Override
-    public void update(Capability capability, String[] params) {
+    public void update(Capability capability) {
         jdbcTemplate.update(
                 "UPDATE capabilities SET name=? WHERE id=?",
                 new Object[] {
-                        params[0],
+                        capability.getName(),
                         capability.getId()
                 });
     }

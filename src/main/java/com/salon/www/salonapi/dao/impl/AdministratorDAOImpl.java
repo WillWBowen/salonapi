@@ -49,12 +49,12 @@ public class AdministratorDAOImpl implements AdministratorDAO {
     }
 
     @Override
-    public void update(Administrator administrator, String[] params) {
+    public void update(Administrator administrator) {
         jdbcTemplate.update(
                 "UPDATE customers SET first_name=?, last_name=? WHERE id=?",
                 new Object[] {
-                        params[0],
-                        params[1],
+                        administrator.getFirstName(),
+                        administrator.getLastName(),
                         administrator.getId()
                 });
     }
