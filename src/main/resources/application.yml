@@ -1,0 +1,18 @@
+spring:
+  mvc:
+    throw-exception-if-no-handler-found: true
+  resources:
+    add-mappings: false
+  datasource:
+    url: jdbc:mysql://localhost:3306/library
+    username: salonapi
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    tomcat:
+      initial-size: 3
+      max-active: 10
+      min-idle: 3
+      max-idle: 5
+
+jwt:
+  secret: supersecret
