@@ -1,6 +1,5 @@
 package com.salon.www.salonapi.service.impl;
 
-import com.salon.www.salonapi.dao.RoleDAO;
 import com.salon.www.salonapi.model.Customer;
 import com.salon.www.salonapi.dao.CustomerDAO;
 import com.salon.www.salonapi.service.CustomerService;
@@ -11,29 +10,29 @@ import java.util.List;
 
 @Service("customerService")
 public class CustomerServiceImpl implements CustomerService {
-    @Autowired
+
     private CustomerDAO customerDao;
 
     @Autowired
-    private RoleDAO roleDAO;
+    public CustomerServiceImpl(CustomerDAO customerDao) {
+        this.customerDao = customerDao;
+    }
 
     @Override
     public List<Customer> getCustomers() {
-        List<Customer> customers = customerDao.getAll();
-        return customers;
+        return customerDao.getAll();
     }
 
     public Customer getCustomer(Long customerId) {
-        Customer customer = customerDao.get(customerId).get();
-        return customer;
+        return customerDao.get(customerId).get();
     }
 
     public Customer getCustomerByEmail(String email) {
-        Customer customer = customerDao.getCustomerByEmail(email).get();
-        return customer;
+        return customerDao.getCustomerByEmail(email).get();
     }
 
     public void deleteCustomer(Customer customer) {
+
         customerDao.delete(customer);
     }
 
@@ -42,6 +41,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     public void createCustomer(Customer customer) {
+
         customerDao.save(customer);
     }
 }

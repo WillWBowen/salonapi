@@ -13,12 +13,16 @@ import java.util.List;
 
 public class AdminServiceImpl implements AdminService {
 
-    @Autowired
     private EmployeeDAO employeeDAO;
-    @Autowired
     private EmployeeShiftDAO shiftDAO;
-    @Autowired
     private SkillDAO skillDAO;
+
+    @Autowired
+    public AdminServiceImpl(EmployeeDAO employeeDAO, EmployeeShiftDAO shiftDAO, SkillDAO skillDAO) {
+        this.employeeDAO = employeeDAO;
+        this.shiftDAO = shiftDAO;
+        this.skillDAO = skillDAO;
+    }
 
     @Override
     public void addEmployee(Employee employee) {
