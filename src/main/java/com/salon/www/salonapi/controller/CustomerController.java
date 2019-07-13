@@ -15,8 +15,12 @@ import java.util.List;
 @RestController
 public class CustomerController {
 
+    private CustomerService customerService;
+
     @Autowired
-    CustomerService customerService;
+    public CustomerController(CustomerService customerService) {
+        this.customerService = customerService;
+    }
 
     @GetMapping("/customer")
     @SneakyThrows

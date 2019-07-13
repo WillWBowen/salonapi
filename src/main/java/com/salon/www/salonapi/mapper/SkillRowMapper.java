@@ -5,7 +5,7 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class SkillRowMapper implements RowMapper {
+public class SkillRowMapper implements RowMapper<Skill> {
     public Skill mapRow(ResultSet rs, int rowNum) throws SQLException {
         Skill skill = new Skill();
         skill.setId(rs.getLong("id"));

@@ -24,11 +24,11 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     public Customer getCustomer(Long customerId) {
-        return customerDao.get(customerId).get();
+        return customerDao.get(customerId).orElse(null);
     }
 
     public Customer getCustomerByEmail(String email) {
-        return customerDao.getCustomerByEmail(email).get();
+        return customerDao.getCustomerByEmail(email).orElse(null);
     }
 
     public void deleteCustomer(Customer customer) {

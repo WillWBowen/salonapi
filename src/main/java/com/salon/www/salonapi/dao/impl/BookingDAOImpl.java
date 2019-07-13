@@ -22,11 +22,11 @@ public class BookingDAOImpl implements BookingDAO {
 
     @Override
     public Optional<Booking> get(long id) {
-        return (Optional<Booking>) jdbcTemplate.queryForObject(
+        return Optional.ofNullable(jdbcTemplate.queryForObject(
                         "SELECT * FROM bookings WHERE id=?",
                         new Object[] {id},
                         new BookingRowMapper()
-        );
+        ));
     }
 
     @Override

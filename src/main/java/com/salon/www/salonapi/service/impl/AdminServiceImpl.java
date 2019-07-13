@@ -8,81 +8,83 @@ import com.salon.www.salonapi.model.EmployeeShift;
 import com.salon.www.salonapi.model.Skill;
 import com.salon.www.salonapi.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service("adminService")
 public class AdminServiceImpl implements AdminService {
 
-    private EmployeeDAO employeeDAO;
-    private EmployeeShiftDAO shiftDAO;
-    private SkillDAO skillDAO;
+    private EmployeeDAO employeeDao;
+    private EmployeeShiftDAO employeeShiftDao;
+    private SkillDAO skillDao;
 
     @Autowired
-    public AdminServiceImpl(EmployeeDAO employeeDAO, EmployeeShiftDAO shiftDAO, SkillDAO skillDAO) {
-        this.employeeDAO = employeeDAO;
-        this.shiftDAO = shiftDAO;
-        this.skillDAO = skillDAO;
+    public AdminServiceImpl(EmployeeDAO employeeDao, EmployeeShiftDAO employeeShiftDao, SkillDAO skillDao) {
+        this.employeeDao = employeeDao;
+        this.employeeShiftDao = employeeShiftDao;
+        this.skillDao = skillDao;
     }
 
     @Override
     public void addEmployee(Employee employee) {
-        employeeDAO.save(employee);
+        employeeDao.save(employee);
     }
 
     @Override
     public void updateEmployee(Employee employee) {
-        employeeDAO.update(employee);
+        employeeDao.update(employee);
     }
 
     @Override
     public void addEmployeeSkill(Employee employee, Skill skill) {
-        employeeDAO.addSkill(employee, skill);
+        employeeDao.addSkill(employee, skill);
     }
 
     @Override
     public void addEmployeeSkills(Employee employee, List<Skill> skills) {
         for(Skill skill : skills) {
-            employeeDAO.addSkill(employee, skill);
+            employeeDao.addSkill(employee, skill);
         }
     }
 
     @Override
     public void removeEmployeeSkill(Employee employee, Skill skill) {
-        employeeDAO.removeSkill(employee, skill);
+        employeeDao.removeSkill(employee, skill);
     }
 
     @Override
     public List<Skill> getEmployeeSkills(Employee employee) {
-        return skillDAO.getForEmployee(employee);
+        return skillDao.getForEmployee(employee);
     }
 
     @Override
     public void addEmployeeShift(EmployeeShift shift) {
-        shiftDAO.save(shift);
+        employeeShiftDao.save(shift);
     }
 
     @Override
     public void removeEmployeeShift(EmployeeShift shift) {
-        shiftDAO.delete(shift);
+        employeeShiftDao.delete(shift);
     }
 
     @Override
     public List<EmployeeShift> getEmployeeShifts(Employee employee) {
-        return shiftDAO.getAllForEmployee(employee);
+        return employeeShiftDao.getAllForEmployee(employee);
     }
 
     @Override
     public EmployeeShift getEmployeeShiftForDay(Employee employee, String day) {
-        return shiftDAO.getForEmployeeForDay(employee, day).get();
+        return employeeShiftDao.getForEmployeeForDay(employee, day).orElse(null);
     }
 
     @Override
     public void createSkill(Skill skill) {
-        skillDAO.save(skill);
+        skillDao.save(skill);
     }
 
     @Override
     public void updateSkill(Skill skill) {
-        skillDAO.update(skill);
+        skillDao.update(skill);
     }
 }

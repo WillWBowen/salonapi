@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-@Repository("employeeShiftDao")
+@Repository("ShiftDao")
 public class EmployeeShiftDAOImpl implements EmployeeShiftDAO {
 
     private JdbcTemplate jdbcTemplate;
@@ -23,11 +23,11 @@ public class EmployeeShiftDAOImpl implements EmployeeShiftDAO {
 
     @Override
     public Optional<EmployeeShift> get(long id) {
-        return (Optional<EmployeeShift>) jdbcTemplate.queryForObject(
+        return Optional.ofNullable(jdbcTemplate.queryForObject(
                         "SELECT * FROM employee_shifts WHERE id=?",
                         new Object[] {id},
                         new EmployeeShiftRowMapper()
-        );
+        ));
     }
 
     @Override
@@ -82,13 +82,13 @@ public class EmployeeShiftDAOImpl implements EmployeeShiftDAO {
 
     @Override
     public Optional<EmployeeShift> getForEmployeeForDay(Employee employee, String day) {
-       return (Optional<EmployeeShift>) jdbcTemplate.queryForObject(
+       return Optional.ofNullable(jdbcTemplate.queryForObject(
                         "SELECT * FROM employee_shifts WHERE employees_id=? AND day=?",
                         new Object[] {
                                 employee.getId(),
                                 day
                         },
                         new EmployeeShiftRowMapper()
-                );
+                ));
     }
 }

@@ -23,11 +23,11 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 
     @Override
     public Optional<Employee> get(long id) {
-        return (Optional<Employee>) jdbcTemplate.queryForObject(
+        return Optional.ofNullable(jdbcTemplate.queryForObject(
                 "SELECT * FROM employees WHERE id=?",
                 new Object[] {id},
                 new EmployeeRowMapper()
-        );
+        ));
     }
 
     @Override

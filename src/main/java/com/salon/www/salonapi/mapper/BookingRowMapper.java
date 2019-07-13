@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class BookingRowMapper implements RowMapper {
+public class BookingRowMapper implements RowMapper<Booking> {
     public Booking mapRow(ResultSet rs, int rowNum) throws SQLException {
         Booking booking = new Booking();
         booking.setId(rs.getLong("id"));

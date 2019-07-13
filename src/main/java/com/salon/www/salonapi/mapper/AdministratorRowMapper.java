@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class AdministratorRowMapper implements RowMapper {
+public class AdministratorRowMapper implements RowMapper<Administrator> {
     public Administrator mapRow(ResultSet rs, int rowNum) throws SQLException {
         Administrator administrator = new Administrator();
         administrator.setId(rs.getLong("id"));

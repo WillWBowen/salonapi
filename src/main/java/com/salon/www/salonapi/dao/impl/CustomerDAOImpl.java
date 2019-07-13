@@ -28,19 +28,19 @@ public class CustomerDAOImpl implements CustomerDAO {
     }
 
     public Optional<Customer> get(long customerId) {
-        return (Optional<Customer>) jdbcTemplate.queryForObject(
+        return Optional.ofNullable(jdbcTemplate.queryForObject(
                 "SELECT * FROM customers WHERE id=?",
                 new Object[] {customerId},
                 new CustomerRowMapper()
-        );
+        ));
     }
 
     public Optional<Customer> getCustomerByEmail(String email) {
-        return (Optional<Customer>) jdbcTemplate.queryForObject(
+        return Optional.ofNullable(jdbcTemplate.queryForObject(
                 "SELECT * FROM customers WHERE email=?",
                 new Object[] {email},
                 new CustomerRowMapper()
-        );
+        ));
     }
 
     public void delete(Customer customer) {

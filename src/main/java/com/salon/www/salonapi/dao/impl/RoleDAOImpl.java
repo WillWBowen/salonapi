@@ -22,21 +22,20 @@ public class RoleDAOImpl implements RoleDAO {
 
     @Override
     public Optional<Role> findByRole(String roleName) {
-        return (Optional<Role>) jdbcTemplate.queryForObject(
+        return Optional.ofNullable(jdbcTemplate.queryForObject(
                 "SELECT * FROM roles WHERE name=?",
                 new Object[] {roleName},
                 new RoleRowMapper()
-        );
+        ));
     }
 
     @Override
     public Optional<Role> get(long id) {
-        return (Optional<Role>) jdbcTemplate.queryForObject(
+        return Optional.ofNullable(jdbcTemplate.queryForObject(
                         "SELECT * FROM roles WHERE id=?",
                         new Object[] {id},
                         new RoleRowMapper()
-
-                );
+                ));
     }
 
     @Override

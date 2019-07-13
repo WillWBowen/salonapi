@@ -22,11 +22,11 @@ public class CapabilityDAOImpl implements CapabilityDAO {
 
     @Override
     public Optional<Capability> get(long id) {
-        return (Optional<Capability>) jdbcTemplate.queryForObject(
+        return Optional.ofNullable(jdbcTemplate.queryForObject(
                         "SELECT * FROM capabilities WHERE id=?",
                         new Object[] {id},
                         new CapabilityRowMapper()
-        );
+        ));
     }
 
     @Override

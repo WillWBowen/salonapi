@@ -1,14 +1,8 @@
 package com.salon.www.salonapi.controller;
 
 
-import com.salon.www.salonapi.exception.CustomerCreationException;
-import com.salon.www.salonapi.exception.CustomerNotFoundException;
-import com.salon.www.salonapi.model.ResponseErrorEntity;
 import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.dao.DataAccessException;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -19,7 +13,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
@@ -47,7 +40,7 @@ public class GlobalExceptionHandler {
 
    // @ResponseStatus(value= HttpStatus.NOT_FOUND, reason="Endpoint not found")
     @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<String> handle404Status(NoHandlerFoundException ex) {
+    public ResponseEntity<String> handle404Status() {
         return new ResponseEntity<>("Page Not Found.", HttpStatus.NOT_FOUND);
 
     }

@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class UserRowMapper implements RowMapper {
+public class UserRowMapper implements RowMapper<UserDto> {
     public UserDto mapRow(ResultSet rs, int rowNum) throws SQLException {
         UserDto user = new UserDto();
         user.setId(rs.getLong("user_id"));

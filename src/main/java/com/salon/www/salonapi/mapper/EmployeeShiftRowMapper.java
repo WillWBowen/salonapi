@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class EmployeeShiftRowMapper implements RowMapper {
+public class EmployeeShiftRowMapper implements RowMapper<EmployeeShift> {
     public EmployeeShift mapRow(ResultSet rs, int rowNum) throws SQLException {
         EmployeeShift employeeShift = new EmployeeShift();
         employeeShift.setId(rs.getLong("id"));

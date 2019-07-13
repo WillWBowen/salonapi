@@ -1,8 +1,8 @@
 package com.salon.www.salonapi.exception;
 
-public abstract class CreationException extends Exception {
+abstract class CreationException extends Exception {
 
-    public CreationException(String s){
+    CreationException(String s){
         super(s);
     }
 }

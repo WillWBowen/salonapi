@@ -23,11 +23,11 @@ public class SkillDAOImpl implements SkillDAO {
 
     @Override
     public Optional<Skill> get(long id) {
-        return (Optional<Skill>) jdbcTemplate.queryForObject(
+        return Optional.ofNullable(jdbcTemplate.queryForObject(
                 "SELECT * FROM skills WHERE id=?",
                 new Object[] {id},
                 new SkillRowMapper()
-        );
+        ));
     }
 
     @Override

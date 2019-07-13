@@ -22,12 +22,12 @@ public class AdministratorDAOImpl implements AdministratorDAO {
 
     @Override
     public Optional<Administrator> get(long id) {
-        return (Optional<Administrator>) jdbcTemplate.queryForObject(
+        return Optional.ofNullable(jdbcTemplate.queryForObject(
                "SELECT * FROM administrators WHERE id=?",
                 new Object[] {id},
                 new AdministratorRowMapper()
 
-        );
+        ));
     }
 
     @Override
