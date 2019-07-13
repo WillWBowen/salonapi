@@ -7,11 +7,9 @@ import java.sql.SQLException;
 
 public class SkillRowMapper implements RowMapper<Skill> {
     public Skill mapRow(ResultSet rs, int rowNum) throws SQLException {
-        Skill skill = new Skill();
-        skill.setId(rs.getLong("id"));
-        skill.setName(rs.getString("name"));
-        skill.setPrice(rs.getInt("price"));
-
-        return skill;
+        return new Skill(
+        rs.getLong("id"),
+        rs.getString("name"),
+        rs.getInt("price"));
     }
 }

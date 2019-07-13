@@ -103,9 +103,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`services`
+-- Table `mydb`.`skills`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`services` (
+CREATE TABLE IF NOT EXISTS `mydb`.`skills` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
   `price` INT NOT NULL,
@@ -176,22 +176,22 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`employees_x_services`
+-- Table `mydb`.`employees_x_skills`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`employees_x_services` (
+CREATE TABLE IF NOT EXISTS `mydb`.`employees_x_skills` (
   `employees_id` INT NOT NULL,
-  `services_id` INT NOT NULL,
-  PRIMARY KEY (`employees_id`, `services_id`),
-  INDEX `fk_employees_has_services_services1_idx` (`services_id` ASC),
-  INDEX `fk_employees_has_services_employees_idx` (`employees_id` ASC),
-  CONSTRAINT `fk_employees_has_services_employees`
+  `skills_id` INT NOT NULL,
+  PRIMARY KEY (`employees_id`, `skills_id`),
+  INDEX `fk_employees_has_skills_skills1_idx` (`skills_id` ASC),
+  INDEX `fk_employees_has_skills_employees_idx` (`employees_id` ASC),
+  CONSTRAINT `fk_employees_has_skills_employees`
     FOREIGN KEY (`employees_id`)
     REFERENCES `mydb`.`employees` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_employees_has_services_services1`
-    FOREIGN KEY (`services_id`)
-    REFERENCES `mydb`.`services` (`id`)
+  CONSTRAINT `fk_employees_has_skills_skills1`
+    FOREIGN KEY (`skills_id`)
+    REFERENCES `mydb`.`skills` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -242,24 +242,24 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`bookings_x_services`
+-- Table `mydb`.`bookings_x_skills`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`bookings_x_services` (
+CREATE TABLE IF NOT EXISTS `mydb`.`bookings_x_skills` (
   `bookings_id` INT NOT NULL,
   `bookings_customers_id` INT NOT NULL,
   `bookings_customers_users_id` INT NOT NULL,
-  `services_id` INT NOT NULL,
-  PRIMARY KEY (`bookings_id`, `bookings_customers_id`, `bookings_customers_users_id`, `services_id`),
-  INDEX `fk_bookings_has_services_services1_idx` (`services_id` ASC),
-  INDEX `fk_bookings_has_services_bookings1_idx` (`bookings_id` ASC, `bookings_customers_id` ASC, `bookings_customers_users_id` ASC),
-  CONSTRAINT `fk_bookings_has_services_bookings1`
+  `skills_id` INT NOT NULL,
+  PRIMARY KEY (`bookings_id`, `bookings_customers_id`, `bookings_customers_users_id`, `skills_id`),
+  INDEX `fk_bookings_has_skills_skills1_idx` (`skills_id` ASC),
+  INDEX `fk_bookings_has_skills_bookings1_idx` (`bookings_id` ASC, `bookings_customers_id` ASC, `bookings_customers_users_id` ASC),
+  CONSTRAINT `fk_bookings_has_skills_bookings1`
     FOREIGN KEY (`bookings_id` , `bookings_customers_id` , `bookings_customers_users_id`)
     REFERENCES `mydb`.`bookings` (`id` , `customers_id` , `customers_users_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_bookings_has_services_services1`
-    FOREIGN KEY (`services_id`)
-    REFERENCES `mydb`.`services` (`id`)
+  CONSTRAINT `fk_bookings_has_skills_skills1`
+    FOREIGN KEY (`skills_id`)
+    REFERENCES `mydb`.`skills` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
