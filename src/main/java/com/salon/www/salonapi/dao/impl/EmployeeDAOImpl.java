@@ -14,75 +14,73 @@ import java.util.Optional;
 @Repository("employeeDao")
 public class EmployeeDAOImpl implements EmployeeDAO {
 
-    @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public EmployeeDAOImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Override
     public Optional<Employee> get(long id) {
-        Optional<Employee> employee =
-                (Optional<Employee>) jdbcTemplate.queryForObject(
-                        "SELECT * FROM employees WHERE id=?",
-                        new Object[] {id},
-                        new EmployeeRowMapper()
-
-                );
-
-        return employee;
+        return (Optional<Employee>) jdbcTemplate.queryForObject(
+                "SELECT * FROM employees WHERE id=?",
+                new Object[] {id},
+                new EmployeeRowMapper()
+        );
     }
 
     @Override
     public List<Employee> getAll(){
-        List<Employee> employees = jdbcTemplate.query(
+        return jdbcTemplate.query(
                 "SELECT * FROM employees", new EmployeeRowMapper()
         );
-
-        return employees;
     }
 
     @Override
     public void save(Employee employee) {
         jdbcTemplate.update(
                 "INSERT INTO employees(first_name, last_name, position, status) VALUES(?,?,?,?)",
-                new Object[] {
-                        employee.getFirstName(),
-                        employee.getLastName(),
-                        employee.getPosition(),
-                        employee.getStatus()
-                });
+                employee.getFirstName(),
+                employee.getLastName(),
+                employee.getPosition(),
+                employee.getStatus()
+        );
     }
 
     @Override
     public void update(Employee employee) {
         jdbcTemplate.update(
                 "UPDATE employees SET first_name=?, last_name=?, position=?, status=? WHERE id=?",
-                new Object[] {
-                        employee.getFirstName(),
-                        employee.getLastName(),
-                        employee.getPosition(),
-                        employee.getStatus(),
-                        employee.getId()
-                });
+                employee.getFirstName(),
+                employee.getLastName(),
+                employee.getPosition(),
+                employee.getStatus(),
+                employee.getId()
+        );
     }
 
     @Override
     public void delete(Employee employee) {
         jdbcTemplate.update(
                 "DELETE FROM employees WHERE id = ?",
-                new Object[] {employee.getId()}
+                employee.getId()
         );
     }
 
     @Override
     public void addSkill(Employee employee, Skill skill) {
         jdbcTemplate.update("INSERT INTO employees_x_skills(employees_id, skills_id) VALUES (?,?)",
-                new Object[] {
-                        employee.getId(),
-                        skill.getId()
-                });
+                employee.getId(),
+                skill.getId()
+        );
     }
 
     @Override
     public void removeSkill(Employee employee, Skill skill) {
-        jdbcTemplate.update("DELETE FROM employees_x_skills WHERE employees_id=? AND skills_id=?");
+        jdbcTemplate.update("DELETE FROM employees_x_skills WHERE employees_id=? AND skills_id=?",
+                employee.getId(),
+                skill.getId()
+        );
     }
 }

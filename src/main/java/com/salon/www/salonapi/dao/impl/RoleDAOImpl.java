@@ -13,58 +13,53 @@ import java.util.Optional;
 @Repository("roleDao")
 public class RoleDAOImpl implements RoleDAO {
 
-    @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public RoleDAOImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Override
     public Optional<Role> findByRole(String roleName) {
-        Optional<Role> role = (Optional<Role>) jdbcTemplate.queryForObject(
-                "SELECT * FROM roles WHERE role=?",
+        return (Optional<Role>) jdbcTemplate.queryForObject(
+                "SELECT * FROM roles WHERE name=?",
                 new Object[] {roleName},
                 new RoleRowMapper()
         );
-        return role;
     }
 
     @Override
     public Optional<Role> get(long id) {
-        Optional<Role> role =
-                (Optional<Role>) jdbcTemplate.queryForObject(
+        return (Optional<Role>) jdbcTemplate.queryForObject(
                         "SELECT * FROM roles WHERE id=?",
                         new Object[] {id},
                         new RoleRowMapper()
 
                 );
-
-        return role;
     }
 
     @Override
     public List<Role> getAll() {
-        List<Role> roles = jdbcTemplate.query(
+        return jdbcTemplate.query(
                 "SELECT * FROM roles", new RoleRowMapper()
         );
-
-        return roles;
     }
 
     @Override
     public void save(Role role) {
         jdbcTemplate.update(
                 "INSERT INTO roles(name) VALUES(?)",
-                new Object[] {
-                        role.getName()
-                });
+                role.getName()
+        );
     }
 
     @Override
     public void update(Role role) {
         jdbcTemplate.update(
                 "UPDATE roles SET name=? WHERE id=?",
-                new Object[] {
-                        role.getName(),
-                        role.getId()
-                }
+                role.getName(),
+                role.getId()
         );
     }
 
@@ -72,7 +67,7 @@ public class RoleDAOImpl implements RoleDAO {
     public void delete(Role role) {
         jdbcTemplate.update(
                 "DELETE FROM roles WHERE id = ?",
-                new Object[] {role.getId()}
+                role.getId()
         );
     }
 }

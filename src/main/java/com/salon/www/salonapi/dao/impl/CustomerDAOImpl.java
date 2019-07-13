@@ -11,63 +11,64 @@ import java.util.Optional;
 
 @Repository("customerDao")
 public class CustomerDAOImpl implements CustomerDAO {
-    @Autowired
+
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    public CustomerDAOImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
     public List<Customer> getAll() {
-        List<Customer> customers = jdbcTemplate.query(
+        return jdbcTemplate.query(
                 "SELECT * FROM customers", new CustomerRowMapper()
         );
 
-        return customers;
+
     }
 
     public Optional<Customer> get(long customerId) {
-        Optional<Customer> customer = (Optional<Customer>) jdbcTemplate.queryForObject(
-                "SELECT * FROM customers WHERE customer_id=?",
+        return (Optional<Customer>) jdbcTemplate.queryForObject(
+                "SELECT * FROM customers WHERE id=?",
                 new Object[] {customerId},
                 new CustomerRowMapper()
         );
-        return customer;
     }
 
     public Optional<Customer> getCustomerByEmail(String email) {
-        Optional<Customer> customer = (Optional<Customer>) jdbcTemplate.queryForObject(
+        return (Optional<Customer>) jdbcTemplate.queryForObject(
                 "SELECT * FROM customers WHERE email=?",
                 new Object[] {email},
                 new CustomerRowMapper()
         );
-        return customer;
     }
 
     public void delete(Customer customer) {
         jdbcTemplate.update(
-                "DELETE FROM customers WHERE customer_id = ?",
-                new Object[] {customer.getId()}
+                "DELETE FROM customers WHERE id = ?",
+                customer.getId()
         );
     }
 
     public void update(Customer customer) {
         jdbcTemplate.update(
-                "UPDATE customers SET first_name=?, last_name=?, email=?, phone=? WHERE customer_id=?",
-                new Object[] {
-                        customer.getFirstName(),
-                        customer.getLastName(),
-                        customer.getEmail(),
-                        customer.getPhone(),
-                        customer.getId()
-                });
+                "UPDATE customers SET first_name=?, last_name=?, email=?, phone=? WHERE id=?",
+                customer.getFirstName(),
+                customer.getLastName(),
+                customer.getEmail(),
+                customer.getPhone(),
+                customer.getId()
+                );
     }
 
     public void save(Customer customer) {
         jdbcTemplate.update(
                 "INSERT INTO customers(first_name, last_name, email, phone) VALUES(?,?,?,?)",
-                new Object[] {
-                        customer.getFirstName(),
-                        customer.getLastName(),
-                        customer.getEmail(),
-                        customer.getPhone()
-                });
+                customer.getFirstName(),
+                customer.getLastName(),
+                customer.getEmail(),
+                customer.getPhone()
+                );
 
 
     }

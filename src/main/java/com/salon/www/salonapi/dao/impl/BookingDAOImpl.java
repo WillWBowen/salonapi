@@ -13,61 +13,57 @@ import java.util.Optional;
 @Repository("bookingDao")
 public class BookingDAOImpl implements BookingDAO {
 
-    @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public BookingDAOImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Override
     public Optional<Booking> get(long id) {
-        Optional<Booking> booking =
-                (Optional<Booking>) jdbcTemplate.queryForObject(
+        return (Optional<Booking>) jdbcTemplate.queryForObject(
                         "SELECT * FROM bookings WHERE id=?",
                         new Object[] {id},
                         new BookingRowMapper()
-
-                );
-
-        return booking;
+        );
     }
 
     @Override
     public List<Booking> getAll() {
-        List<Booking> bookings = jdbcTemplate.query(
+        return jdbcTemplate.query(
                 "SELECT * FROM bookings", new BookingRowMapper()
         );
-
-        return bookings;
     }
 
     @Override
     public void save(Booking booking) {
         jdbcTemplate.update(
                 "INSERT INTO bookings(customers_id, employees_id, booking_time, end_time) VALUES(?,?,?,?)",
-                new Object[] {
-                        booking.getCustomerid(),
-                        booking.getEmployeeid(),
-                        booking.getBookingTime(),
-                        booking.getEndTime()
-                });
+               booking.getCustomerid(),
+               booking.getEmployeeid(),
+               booking.getBookingTime(),
+               booking.getEndTime()
+               );
     }
 
     @Override
     public void update(Booking booking) {
         jdbcTemplate.update(
                 "UPDATE bookings SET customers_id=?, employees_id=?, booking_time=?, end_time=? WHERE id=?",
-                new Object[] {
-                        booking.getCustomerid(),
-                        booking.getEmployeeid(),
-                        booking.getBookingTime(),
-                        booking.getEndTime(),
-                        booking.getId()
-                });
+                booking.getCustomerid(),
+                booking.getEmployeeid(),
+                booking.getBookingTime(),
+                booking.getEndTime(),
+                booking.getId()
+                );
     }
 
     @Override
     public void delete(Booking booking) {
         jdbcTemplate.update(
                 "DELETE FROM bookings WHERE id = ?",
-                new Object[] {booking.getId()}
+                booking.getId()
         );
     }
 }

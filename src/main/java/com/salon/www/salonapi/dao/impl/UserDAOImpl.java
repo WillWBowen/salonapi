@@ -18,42 +18,41 @@ import java.util.Optional;
 @Repository("userDao")
 public class UserDAOImpl implements UserDAO {
 
-    @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public UserDAOImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Override
     public Optional<UserDto> get(long id) {
-        Optional<UserDto> user = (Optional<UserDto>) jdbcTemplate.queryForObject(
+       return (Optional<UserDto>) jdbcTemplate.queryForObject(
                 "SELECT * FROM users WHERE id=?",
                 new Object[] {id},
                 new UserRowMapper()
         );
-        return user;
     }
 
     public List<UserDto> getAll() {
-        List<UserDto> users = jdbcTemplate.query(
+        return jdbcTemplate.query(
                 "SELECT * FROM users", new UserRowMapper()
         );
-
-        return users;
     }
 
     public void update(UserDto user) {
         jdbcTemplate.update(
                 "UPDATE users SET username=?, password=? WHERE id=?",
-                new Object[] {
-                        user.getUsername(),
-                        user.getPassword(),
-                        user.getId()
-                }
+                user.getUsername(),
+                user.getPassword(),
+                user.getId()
         );
     }
 
     public void delete(UserDto user) {
         jdbcTemplate.update(
                 "DELETE FROM users WHERE id = ?",
-                new Object[] {user.getId()}
+                user.getId()
         );
     }
 
@@ -86,6 +85,12 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public List<Role> getUserRoles(UserDto user) {
-        return null;
+        return jdbcTemplate.query(
+                "SELECT * FROM roles r " +
+                        "INNER JOIN users_x_roles uxr on r.id = uxr.roles_id " +
+                        "WHERE uxr.users_id=?",
+                new Object[] {user.getId()},
+                new UserRowMapper()
+        );
     }
 }
