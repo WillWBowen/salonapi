@@ -9,9 +9,9 @@ import java.sql.SQLException;
 public class UserRowMapper implements RowMapper<UserDto> {
     public UserDto mapRow(ResultSet rs, int rowNum) throws SQLException {
         UserDto user = new UserDto();
-        user.setId(rs.getLong("user_id"));
+        user.setId(rs.getLong("id"));
         user.setUsername(rs.getString("username"));
-        user.setPassword(rs.getString("password"));
+        user.setPassword("REDACTED");
 
         return user;
     }

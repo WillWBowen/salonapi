@@ -1,6 +1,9 @@
 package com.salon.www.salonapi.dao.impl;
 
 import com.salon.www.salonapi.dao.AdministratorDAO;
+import com.salon.www.salonapi.exception.AdministratorCreationFailedException;
+import com.salon.www.salonapi.exception.AdministratorDeletionFailedException;
+import com.salon.www.salonapi.exception.AdministratorUpdateFailedException;
 import com.salon.www.salonapi.mapper.AdministratorRowMapper;
 import com.salon.www.salonapi.model.Administrator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +25,10 @@ public class AdministratorDAOImpl implements AdministratorDAO {
 
     @Override
     public Optional<Administrator> get(long id) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
-               "SELECT * FROM administrators WHERE id=?",
-                new Object[] {id},
-                new AdministratorRowMapper()
-
-        ));
+        String sql = "SELECT * FROM administrators WHERE id=?";
+        return jdbcTemplate.query(sql,
+                rs -> rs.next() ? Optional.ofNullable(new AdministratorRowMapper().mapRow(rs, 1)) : Optional.empty(),
+                id);
     }
 
     @Override
@@ -39,28 +40,35 @@ public class AdministratorDAOImpl implements AdministratorDAO {
 
     @Override
     public void save(Administrator administrator) {
-        jdbcTemplate.update(
-                "INSERT INTO administrators(first_name, last_name) VALUES(?,?)",
-                        administrator.getFirstName(),
-                        administrator.getLastName()
-                );
+        try {
+            jdbcTemplate.update(
+                    "INSERT INTO administrators(users_id, first_name, last_name) VALUES(?,?,?)",
+                    administrator.getUserId(),
+                    administrator.getFirstName(),
+                    administrator.getLastName()
+            );
+        } catch (Exception ex) {
+            throw new AdministratorCreationFailedException();
+        }
     }
 
     @Override
     public void update(Administrator administrator) {
-        jdbcTemplate.update(
-                "UPDATE customers SET first_name=?, last_name=? WHERE id=?",
+        if(jdbcTemplate.update(
+                "UPDATE administrators SET first_name=?, last_name=? WHERE id=?",
                         administrator.getFirstName(),
                         administrator.getLastName(),
-                        administrator.getId()
-                );
+                        administrator.getId()) != 1) {
+            throw new AdministratorUpdateFailedException();
+        }
     }
 
     @Override
     public void delete(Administrator administrator) {
-        jdbcTemplate.update(
+        if(jdbcTemplate.update(
                 "DELETE FROM administrators WHERE id = ?",
-                administrator.getId()
-        );
+                administrator.getId()) != 1) {
+            throw new AdministratorDeletionFailedException();
+        }
     }
 }

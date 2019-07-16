@@ -1,5 +1,7 @@
 package com.salon.www.salonapi.controller;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.salon.www.salonapi.exception.SkillNotFoundException;
 import com.salon.www.salonapi.model.Skill;
 import com.salon.www.salonapi.service.SkillService;
@@ -8,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -42,5 +45,25 @@ public class SkillsControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/skills/1"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void postSkill_ShouldReturnStatusCreated() throws Exception {
+        Skill skill = new Skill("manicure", 20);
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(skill);
+        mockMvc.perform(MockMvcRequestBuilders.post("/skills")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    public void postSkill_ShouldReturnStatusBadRequest() throws Exception {
+        String badjson = "{This is bad json}";
+        mockMvc.perform(MockMvcRequestBuilders.post("/skills")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(badjson))
+                .andExpect(status().isBadRequest());
     }
 }

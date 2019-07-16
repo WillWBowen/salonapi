@@ -10,6 +10,7 @@ public class AdministratorRowMapper implements RowMapper<Administrator> {
     public Administrator mapRow(ResultSet rs, int rowNum) throws SQLException {
         Administrator administrator = new Administrator();
         administrator.setId(rs.getLong("id"));
+        administrator.setUserId(rs.getLong("users_id"));
         administrator.setFirstName(rs.getString("first_name"));
         administrator.setLastName(rs.getString("last_name"));
 

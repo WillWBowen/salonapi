@@ -1,6 +1,9 @@
 package com.salon.www.salonapi.dao.impl;
 
 import com.salon.www.salonapi.dao.EmployeeShiftDAO;
+import com.salon.www.salonapi.exception.EmployeeShiftCreationFailedException;
+import com.salon.www.salonapi.exception.EmployeeShiftDeletionFailedException;
+import com.salon.www.salonapi.exception.EmployeeShiftUpdateFailedException;
 import com.salon.www.salonapi.mapper.EmployeeShiftRowMapper;
 import com.salon.www.salonapi.model.Employee;
 import com.salon.www.salonapi.model.EmployeeShift;
@@ -23,11 +26,13 @@ public class EmployeeShiftDAOImpl implements EmployeeShiftDAO {
 
     @Override
     public Optional<EmployeeShift> get(long id) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
-                        "SELECT * FROM employee_shifts WHERE id=?",
-                        new Object[] {id},
-                        new EmployeeShiftRowMapper()
-        ));
+        String sql = "SELECT * FROM employee_shifts WHERE id=?";
+        return jdbcTemplate.query(
+                        sql,
+                        rs -> rs.next() ? Optional.ofNullable(new EmployeeShiftRowMapper().mapRow(rs, 1))
+                                        : Optional.empty(),
+                        id
+        );
     }
 
     @Override
@@ -39,34 +44,39 @@ public class EmployeeShiftDAOImpl implements EmployeeShiftDAO {
 
     @Override
     public void save(EmployeeShift employeeShift) {
-        jdbcTemplate.update(
-                "INSERT INTO employee_shifts(employees_id, day, start_time, end_time) VALUES(?,?,?,?)",
-                employeeShift.getEmployeeId(),
-                employeeShift.getDay(),
-                employeeShift.getStartTime(),
-                employeeShift.getEndTime()
-                );
+        try {
+            jdbcTemplate.update(
+                    "INSERT INTO employee_shifts(employees_id, day, start_time, end_time) VALUES(?,?,?,?)",
+                    employeeShift.getEmployeeId(),
+                    employeeShift.getDay(),
+                    employeeShift.getStartTime(),
+                    employeeShift.getEndTime()
+            );
+        } catch (Exception ex) {
+            throw new EmployeeShiftCreationFailedException();
+        }
     }
 
     @Override
     public void update(EmployeeShift employeeShift) {
-        jdbcTemplate.update(
+        if(jdbcTemplate.update(
                 "UPDATE employee_shifts SET employees_id=?, day=?, start_time=?, end_time=? WHERE id=?",
                 employeeShift.getEmployeeId(),
                 employeeShift.getDay(),
                 employeeShift.getStartTime(),
                 employeeShift.getEndTime(),
-                employeeShift.getId()
-        );
-
+                employeeShift.getId()) != 1) {
+            throw new EmployeeShiftUpdateFailedException();
+        }
     }
 
     @Override
     public void delete(EmployeeShift employeeShift) {
-        jdbcTemplate.update(
+        if(jdbcTemplate.update(
                 "DELETE FROM employee_shifts WHERE id = ?",
-                employeeShift.getId()
-        );
+                employeeShift.getId()) != 1) {
+            throw new EmployeeShiftDeletionFailedException();
+        }
     }
 
     @Override

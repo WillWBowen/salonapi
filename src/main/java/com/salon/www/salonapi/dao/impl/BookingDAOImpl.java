@@ -1,6 +1,9 @@
 package com.salon.www.salonapi.dao.impl;
 
 import com.salon.www.salonapi.dao.BookingDAO;
+import com.salon.www.salonapi.exception.BookingCreationFailedException;
+import com.salon.www.salonapi.exception.BookingDeletionFailedException;
+import com.salon.www.salonapi.exception.BookingUpdateFailedException;
 import com.salon.www.salonapi.mapper.BookingRowMapper;
 import com.salon.www.salonapi.model.Booking;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +25,12 @@ public class BookingDAOImpl implements BookingDAO {
 
     @Override
     public Optional<Booking> get(long id) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
-                        "SELECT * FROM bookings WHERE id=?",
-                        new Object[] {id},
-                        new BookingRowMapper()
-        ));
+        String sql = "SELECT * FROM bookings WHERE id=?";
+        return jdbcTemplate.query(
+                        sql,
+                        rs -> rs.next() ? Optional.ofNullable(new BookingRowMapper().mapRow(rs, 1)) : Optional.empty(),
+                        id
+        );
     }
 
     @Override
@@ -38,32 +42,39 @@ public class BookingDAOImpl implements BookingDAO {
 
     @Override
     public void save(Booking booking) {
-        jdbcTemplate.update(
-                "INSERT INTO bookings(customers_id, employees_id, booking_time, end_time) VALUES(?,?,?,?)",
-               booking.getCustomerid(),
-               booking.getEmployeeid(),
-               booking.getBookingTime(),
-               booking.getEndTime()
-               );
+        try {
+            jdbcTemplate.update(
+                    "INSERT INTO bookings (employees_id, customers_id, booking_time, end_time) VALUES(?,?,?,?)",
+                    booking.getCustomerId(),
+                    booking.getEmployeeId(),
+                    booking.getBookingTime(),
+                    booking.getEndTime()
+            );
+        } catch (Exception ex) {
+            throw new BookingCreationFailedException();
+        }
     }
 
     @Override
     public void update(Booking booking) {
-        jdbcTemplate.update(
+        if(jdbcTemplate.update(
                 "UPDATE bookings SET customers_id=?, employees_id=?, booking_time=?, end_time=? WHERE id=?",
-                booking.getCustomerid(),
-                booking.getEmployeeid(),
+                booking.getCustomerId(),
+                booking.getEmployeeId(),
                 booking.getBookingTime(),
                 booking.getEndTime(),
-                booking.getId()
-                );
+                booking.getId()) != 1) {
+            throw new BookingUpdateFailedException();
+        }
     }
 
     @Override
     public void delete(Booking booking) {
-        jdbcTemplate.update(
+        if(jdbcTemplate.update(
                 "DELETE FROM bookings WHERE id = ?",
-                booking.getId()
-        );
+                booking.getId()) != 1) {
+            throw new BookingDeletionFailedException();
+        }
+
     }
 }

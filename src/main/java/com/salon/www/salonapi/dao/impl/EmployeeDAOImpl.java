@@ -1,6 +1,9 @@
 package com.salon.www.salonapi.dao.impl;
 
 import com.salon.www.salonapi.dao.EmployeeDAO;
+import com.salon.www.salonapi.exception.EmployeeCreationFailedException;
+import com.salon.www.salonapi.exception.EmployeeDeletionFailedException;
+import com.salon.www.salonapi.exception.EmployeeUpdateFailedException;
 import com.salon.www.salonapi.mapper.EmployeeRowMapper;
 import com.salon.www.salonapi.model.Employee;
 import com.salon.www.salonapi.model.Skill;
@@ -23,11 +26,11 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 
     @Override
     public Optional<Employee> get(long id) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
-                "SELECT * FROM employees WHERE id=?",
-                new Object[] {id},
-                new EmployeeRowMapper()
-        ));
+        String sql = "SELECT * FROM employees WHERE id=?";
+        return jdbcTemplate.query(
+                sql,
+                rs -> rs.next() ? Optional.ofNullable(new EmployeeRowMapper().mapRow(rs, 1)) : Optional.empty(),
+                id);
     }
 
     @Override
@@ -39,33 +42,40 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 
     @Override
     public void save(Employee employee) {
-        jdbcTemplate.update(
-                "INSERT INTO employees(first_name, last_name, position, status) VALUES(?,?,?,?)",
-                employee.getFirstName(),
-                employee.getLastName(),
-                employee.getPosition(),
-                employee.getStatus()
-        );
+        try {
+            jdbcTemplate.update(
+                    "INSERT INTO employees(users_id, first_name, last_name, position, status) VALUES(?,?,?,?,?)",
+                    employee.getUserId(),
+                    employee.getFirstName(),
+                    employee.getLastName(),
+                    employee.getPosition(),
+                    employee.getStatus()
+            );
+        } catch(Exception ex) {
+            throw new EmployeeCreationFailedException();
+        }
     }
 
     @Override
     public void update(Employee employee) {
-        jdbcTemplate.update(
+        if(jdbcTemplate.update(
                 "UPDATE employees SET first_name=?, last_name=?, position=?, status=? WHERE id=?",
                 employee.getFirstName(),
                 employee.getLastName(),
                 employee.getPosition(),
                 employee.getStatus(),
-                employee.getId()
-        );
+                employee.getId()) != 1) {
+            throw new EmployeeUpdateFailedException();
+        }
     }
 
     @Override
     public void delete(Employee employee) {
-        jdbcTemplate.update(
+        if(jdbcTemplate.update(
                 "DELETE FROM employees WHERE id = ?",
-                employee.getId()
-        );
+                employee.getId()) != 1) {
+            throw new EmployeeDeletionFailedException();
+        }
     }
 
     @Override

@@ -55,7 +55,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public List<Skill> getEmployeeSkills(Employee employee) {
-        return skillDao.getForEmployee(employee);
+        return skillDao.getForEmployee(employee.getId());
     }
 
     @Override

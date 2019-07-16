@@ -6,5 +6,5 @@ import com.salon.www.salonapi.model.Skill;
 import java.util.List;
 
 public interface SkillDAO extends Dao<Skill> {
-    List<Skill> getForEmployee(Employee employee);
+    List<Skill> getForEmployee(Long employee_id);
 }

@@ -1,6 +1,9 @@
 package com.salon.www.salonapi.dao.impl;
 
 import com.salon.www.salonapi.dao.CustomerDAO;
+import com.salon.www.salonapi.exception.CustomerCreationFailedException;
+import com.salon.www.salonapi.exception.CustomerDeletionFailedException;
+import com.salon.www.salonapi.exception.CustomerUpdateFailedException;
 import com.salon.www.salonapi.mapper.CustomerRowMapper;
 import com.salon.www.salonapi.model.Customer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,49 +31,56 @@ public class CustomerDAOImpl implements CustomerDAO {
     }
 
     public Optional<Customer> get(long customerId) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
-                "SELECT * FROM customers WHERE id=?",
-                new Object[] {customerId},
-                new CustomerRowMapper()
-        ));
-    }
-
-    public Optional<Customer> getCustomerByEmail(String email) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
-                "SELECT * FROM customers WHERE email=?",
-                new Object[] {email},
-                new CustomerRowMapper()
-        ));
-    }
-
-    public void delete(Customer customer) {
-        jdbcTemplate.update(
-                "DELETE FROM customers WHERE id = ?",
-                customer.getId()
+        String sql = "SELECT * FROM customers WHERE id=?";
+        return jdbcTemplate.query(
+                sql,
+                rs -> rs.next() ? Optional.ofNullable(new CustomerRowMapper().mapRow(rs, 1)) : Optional.empty(),
+                customerId
         );
     }
 
+    public Optional<Customer> getCustomerByEmail(String email) {
+        String sql = "SELECT * FROM customers WHERE email=?";
+        return jdbcTemplate.query(
+                sql,
+                rs -> rs.next() ? Optional.ofNullable(new CustomerRowMapper().mapRow(rs, 1)) : Optional.empty(),
+                email
+        );
+    }
+
+    public void delete(Customer customer) {
+        if(jdbcTemplate.update(
+                "DELETE FROM customers WHERE id = ?",
+                customer.getId()) != 1) {
+            throw new CustomerDeletionFailedException();
+        }
+    }
+
     public void update(Customer customer) {
-        jdbcTemplate.update(
+        if(jdbcTemplate.update(
                 "UPDATE customers SET first_name=?, last_name=?, email=?, phone=? WHERE id=?",
                 customer.getFirstName(),
                 customer.getLastName(),
                 customer.getEmail(),
                 customer.getPhone(),
-                customer.getId()
-                );
+                customer.getId()) != 1) {
+            throw new CustomerUpdateFailedException();
+        }
     }
 
     public void save(Customer customer) {
-        jdbcTemplate.update(
-                "INSERT INTO customers(first_name, last_name, email, phone) VALUES(?,?,?,?)",
-                customer.getFirstName(),
-                customer.getLastName(),
-                customer.getEmail(),
-                customer.getPhone()
-                );
-
-
+        try {
+            jdbcTemplate.update(
+                    "INSERT INTO customers(users_id, first_name, last_name, email, phone) VALUES(?,?,?,?,?)",
+                    customer.getUserId(),
+                    customer.getFirstName(),
+                    customer.getLastName(),
+                    customer.getEmail(),
+                    customer.getPhone()
+            );
+        } catch (Exception ex) {
+            throw new CustomerCreationFailedException();
+        }
     }
 
 

@@ -1,6 +1,7 @@
 package com.salon.www.salonapi.service;
 
 import com.salon.www.salonapi.dao.SkillDAO;
+import com.salon.www.salonapi.exception.SkillCreationFailedException;
 import com.salon.www.salonapi.exception.SkillNotFoundException;
 import com.salon.www.salonapi.model.Skill;
 import com.salon.www.salonapi.service.impl.SkillServiceImpl;
@@ -12,8 +13,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SkillServiceTest {
@@ -45,4 +48,14 @@ public class SkillServiceTest {
 
         skillService.getSkill(1L);
     }
+
+    @Test
+    public void postSkill_ShouldCallSkillDaoWithCorrectObject() {
+        Skill skill = new Skill("manicure", 20);
+
+        skillService.createSkill(skill);
+        verify(skillDao, times(1)).save(skill);
+    }
+
+
 }

@@ -1,6 +1,9 @@
 package com.salon.www.salonapi.dao.impl;
 
 import com.salon.www.salonapi.dao.CapabilityDAO;
+import com.salon.www.salonapi.exception.CapabilityCreationFailedException;
+import com.salon.www.salonapi.exception.CapabilityDeletionFailedException;
+import com.salon.www.salonapi.exception.CapabilityUpdateFailedException;
 import com.salon.www.salonapi.mapper.CapabilityRowMapper;
 import com.salon.www.salonapi.model.Capability;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +25,10 @@ public class CapabilityDAOImpl implements CapabilityDAO {
 
     @Override
     public Optional<Capability> get(long id) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
-                        "SELECT * FROM capabilities WHERE id=?",
-                        new Object[] {id},
-                        new CapabilityRowMapper()
-        ));
+        String sql = "SELECT * FROM capabilities WHERE id=?";
+        return jdbcTemplate.query(sql,
+                rs -> rs.next() ? Optional.ofNullable(new CapabilityRowMapper().mapRow(rs, 1)) : Optional.empty(),
+                id);
     }
 
     @Override
@@ -38,26 +40,32 @@ public class CapabilityDAOImpl implements CapabilityDAO {
 
     @Override
     public void save(Capability capability) {
-        jdbcTemplate.update(
-                "INSERT INTO capabilities(name) VALUES(?)",
-                capability.getName()
-                );
+        try {
+            jdbcTemplate.update(
+                    "INSERT INTO capabilities(name) VALUES(?)",
+                    capability.getName()
+            );
+        } catch (Exception ex) {
+            throw new CapabilityCreationFailedException();
+        }
     }
 
     @Override
     public void update(Capability capability) {
-        jdbcTemplate.update(
+        if(jdbcTemplate.update(
                 "UPDATE capabilities SET name=? WHERE id=?",
                 capability.getName(),
-                capability.getId()
-                );
+                capability.getId()) != 1) {
+            throw new CapabilityUpdateFailedException();
+        }
     }
 
     @Override
     public void delete(Capability capability) {
-        jdbcTemplate.update(
+        if(jdbcTemplate.update(
                 "DELETE FROM capabilities WHERE id = ?",
-                capability.getId()
-        );
+                capability.getId()) != 1) {
+            throw new CapabilityDeletionFailedException();
+        }
     }
 }

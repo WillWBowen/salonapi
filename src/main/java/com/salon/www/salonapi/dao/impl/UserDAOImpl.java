@@ -1,6 +1,9 @@
 package com.salon.www.salonapi.dao.impl;
 
 import com.salon.www.salonapi.dao.UserDAO;
+import com.salon.www.salonapi.exception.UserCreationFailedException;
+import com.salon.www.salonapi.exception.UserDeletionFailedException;
+import com.salon.www.salonapi.exception.UserUpdateFailedException;
 import com.salon.www.salonapi.mapper.RoleRowMapper;
 import com.salon.www.salonapi.mapper.UserRowMapper;
 import com.salon.www.salonapi.model.Role;
@@ -24,11 +27,10 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public Optional<UserDto> get(long id) {
-       return Optional.ofNullable(jdbcTemplate.queryForObject(
-                "SELECT * FROM users WHERE id=?",
-                new Object[] {id},
-                new UserRowMapper()
-        ));
+        String sql = "SELECT * FROM users WHERE id=?";
+        return jdbcTemplate.query(sql,
+                rs -> rs.next() ? Optional.ofNullable(new UserRowMapper().mapRow(rs, 1)) : Optional.empty(),
+                id);
     }
 
     public List<UserDto> getAll() {
@@ -38,28 +40,34 @@ public class UserDAOImpl implements UserDAO {
     }
 
     public void update(UserDto user) {
-        jdbcTemplate.update(
+        if(jdbcTemplate.update(
                 "UPDATE users SET username=?, password=? WHERE id=?",
                 user.getUsername(),
                 user.getPassword(),
-                user.getId()
-        );
+                user.getId()) != 1) {
+            throw new UserUpdateFailedException();
+        }
     }
 
     public void delete(UserDto user) {
-        jdbcTemplate.update(
+        if(jdbcTemplate.update(
                 "DELETE FROM users WHERE id = ?",
-                user.getId()
-        );
+                user.getId())!= 1) {
+            throw new UserDeletionFailedException();
+        }
     }
 
     @Override
     public void save(UserDto user) {
-        jdbcTemplate.update(
-                "INSERT INTO users(username, password) VALUES(?,?)",
-                user.getUsername(),
-                user.getPassword()
-        );
+        try {
+            jdbcTemplate.update(
+                    "INSERT INTO users(username, password) VALUES(?,?)",
+                    user.getUsername(),
+                    user.getPassword());
+        } catch(Exception ex) {
+            throw new UserCreationFailedException();
+        }
+
     }
 
     @Override

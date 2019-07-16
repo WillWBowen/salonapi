@@ -18,6 +18,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.script.ScriptException;
 import java.sql.SQLException;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -64,8 +65,16 @@ public class SkillsIntegrationTest {
     @Test
     public void postSkill_addsNewSkillToDatabase() throws Exception {
         //arrange
+        Skill skill = new Skill("pedicure", 30);
+        Skill postedSkill;
         //act
+        ResponseEntity<Skill> response = restTemplate.postForEntity("/skills", skill, Skill.class);
+        postedSkill = skillDao.get(1L).get();
         //assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(postedSkill.getName()).isEqualTo("pedicure");
+        assertThat(postedSkill.getPrice()).isEqualTo(30);
+
 
     }
 }

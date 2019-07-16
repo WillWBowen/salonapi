@@ -12,8 +12,8 @@ public class EmployeeShiftRowMapper implements RowMapper<EmployeeShift> {
         employeeShift.setId(rs.getLong("id"));
         employeeShift.setDay(rs.getString("day"));
         employeeShift.setEmployeeId(rs.getLong("employees_id"));
-        employeeShift.setStartTime(rs.getString("start_time"));
-        employeeShift.setEndTime(rs.getString("end_time"));
+        employeeShift.setStartTime(rs.getTime("start_time").toLocalTime());
+        employeeShift.setEndTime(rs.getTime("end_time").toLocalTime());
 
         return employeeShift;
     }
