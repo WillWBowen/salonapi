@@ -1,6 +1,7 @@
 package com.salon.www.salonapi.dao;
 
 import com.salon.www.salonapi.exception.*;
+import com.salon.www.salonapi.model.Role;
 import com.salon.www.salonapi.model.UserDto;
 import org.junit.After;
 import org.junit.Before;
@@ -18,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -30,6 +32,7 @@ public class UserDaoImplTest {
     private static final String DROP_USER_T_SQL_SCRIPT = "scripts/drop/users_t.sql";
     private static final String POPULATE_ONE_USER_T_SQL_SCRIPT = "scripts/populate/one_user_t.sql";
     private static final String POPULATE_TWO_USERS_T_SQL_SCRIPT = "scripts/populate/two_users_t.sql";
+    private static final String POPULATE_USER_WITH_ROLES_T_SQL_SCRIPT = "scripts/populate/one_user_two_roles_t.sql";
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -83,6 +86,25 @@ public class UserDaoImplTest {
     }
 
     @Test
+    public void findByUsername_shouldReturnInvalidUserDto_forEmptyDatabase() {
+        Optional<UserDto> invalid = userDao.findByUsername("RandomUserName");
+
+        assertThat(invalid.isPresent()).isFalse();
+    }
+
+    @Test
+    public void findByUsername_shouldReturnValidUserDto_forExistingUserDto() throws Exception {
+        Connection connection = jdbcTemplate.getDataSource().getConnection();
+        ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_ONE_USER_T_SQL_SCRIPT));
+        connection.close();
+        Optional<UserDto> validUser = userDao.findByUsername("username");
+
+        assertThat(validUser.isPresent()).isEqualTo(true);
+        assertThat(validUser.get().getUsername()).isEqualTo("username");
+        assertThat(validUser.get().getPassword()).isEqualTo("REDACTED");
+    }
+
+    @Test
     public void get_shouldReturnInvalidUserDto_forEmptyDatabase() {
         Optional<UserDto> invalid = userDao.get(new Random().nextLong());
 
@@ -106,6 +128,35 @@ public class UserDaoImplTest {
         assertThat(users).isNotNull().hasSize(2);
         assertThat(users.contains(new UserDto(1L, "username", "REDACTED"))).isTrue();
         assertThat(users.contains(new UserDto(2L, "other", "REDACTED"))).isTrue();
+
+    }
+
+    @Test
+    public void getUserRoles_shouldYieldEmptyList_forUserWithNoRoles() throws SQLException{
+        Connection connection = jdbcTemplate.getDataSource().getConnection();
+        ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_ONE_USER_T_SQL_SCRIPT));
+        connection.close();
+
+        UserDto user = new UserDto();
+        user.setId(1L);
+        List<Role> noRoles = userDao.getUserRoles(user);
+
+        assertThat(noRoles).isNullOrEmpty();
+    }
+
+    @Test
+    public void getUserRoles_shouldYieldListOfRoles_forUserWithRoles() throws SQLException{
+        Connection connection = jdbcTemplate.getDataSource().getConnection();
+        ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_USER_WITH_ROLES_T_SQL_SCRIPT));
+        connection.close();
+
+        UserDto user = new UserDto();
+        user.setId(1L);
+        List<Role> userRoles = userDao.getUserRoles(user);
+
+        assertThat(userRoles).isNotNull().hasSize(2);
+        assertThat(userRoles.contains(new Role(1L, "customer"))).isTrue();
+        assertThat(userRoles.contains(new Role(2L, "employee"))).isTrue();
 
     }
 

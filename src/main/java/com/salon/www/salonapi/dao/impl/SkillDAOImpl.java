@@ -5,13 +5,11 @@ import com.salon.www.salonapi.exception.SkillCreationFailedException;
 import com.salon.www.salonapi.exception.SkillDeletionFailedException;
 import com.salon.www.salonapi.exception.SkillUpdateFailedException;
 import com.salon.www.salonapi.mapper.SkillRowMapper;
-import com.salon.www.salonapi.model.Employee;
 import com.salon.www.salonapi.model.Skill;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 

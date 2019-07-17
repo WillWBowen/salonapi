@@ -25,11 +25,10 @@ public class RoleDAOImpl implements RoleDAO {
 
     @Override
     public Optional<Role> findByRole(String roleName) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
-                "SELECT * FROM roles WHERE name=?",
-                new Object[] {roleName},
-                new RoleRowMapper()
-        ));
+        String sql = "SELECT * FROM roles WHERE name=?";
+        return jdbcTemplate.query(sql,
+                rs -> rs.next() ? Optional.ofNullable(new RoleRowMapper().mapRow(rs, 1)) : Optional.empty(),
+                roleName);
     }
 
     @Override

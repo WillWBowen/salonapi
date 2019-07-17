@@ -72,12 +72,10 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public Optional<UserDto> findByUsername(String username) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
-                "SELECT * FROM users WHERE username=?",
-                new Object[] {username},
-                new UserRowMapper()
-        ));
-
+        String sql = "SELECT * FROM users WHERE username=?";
+        return jdbcTemplate.query(sql,
+                rs -> rs.next() ? Optional.ofNullable(new UserRowMapper().mapRow(rs, 1)) : Optional.empty(),
+                username);
     }
 
     @Override

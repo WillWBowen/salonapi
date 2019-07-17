@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `employees` (
 CREATE TABLE IF NOT EXISTS `employee_shifts` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
     `employees_id` BIGINT NOT NULL,
-    `day` VARCHAR(45) NOT NULL,
+    `day` TINYINT NOT NULL,
     `start_time` TIME NOT NULL,
     `end_time` TIME NOT NULL,
     PRIMARY KEY (`id`, `employees_id`),

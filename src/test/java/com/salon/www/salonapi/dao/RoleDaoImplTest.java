@@ -84,6 +84,24 @@ public class RoleDaoImplTest {
     }
 
     @Test
+    public void findByRole_shouldReturnInvalidRole_forEmptyDatabase() {
+        Optional<Role> invalid = roleDao.findByRole("RandomRoleName");
+
+        assertThat(invalid.isPresent()).isFalse();
+    }
+
+    @Test
+    public void findByRole_shouldReturnValidRole_forExistingRole() throws Exception {
+        Connection connection = jdbcTemplate.getDataSource().getConnection();
+        ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_ONE_ROLE_T_SQL_SCRIPT));
+        connection.close();
+        Optional<Role> validRole = roleDao.findByRole("customer");
+
+        assertThat(validRole.isPresent()).isEqualTo(true);
+        assertThat(validRole.get().getRole()).isEqualTo("customer");
+    }
+
+    @Test
     public void get_shouldReturnInvalidRole_forEmptyDatabase() {
         Optional<Role> invalid = roleDao.get(new Random().nextLong());
 

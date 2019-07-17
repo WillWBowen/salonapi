@@ -122,7 +122,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `library`.`employee_shifts` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `employees_id` BIGINT NOT NULL,
-  `day` VARCHAR(45) NOT NULL,
+  `day` TINYINT NOT NULL COMMENT 'day should be a number between 1 (Sunday) and 7 (Saturday)',
   `start_time` DATETIME NOT NULL,
   `end_time` DATETIME NOT NULL,
   PRIMARY KEY (`id`, `employees_id`),

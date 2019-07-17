@@ -61,7 +61,7 @@ public class EmployeeShiftDaoImplTest {
         ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_ONE_EMPLOYEE_T_SQL_SCRIPT));
         connection.close();
 
-        EmployeeShift shift = new EmployeeShift(1L, "MONDAY", LocalTime.of(8, 30), LocalTime.of(17, 0));
+        EmployeeShift shift = new EmployeeShift(1L, 2, LocalTime.of(8, 30), LocalTime.of(17, 0));
         shiftDao.save(shift);
 
         Optional<EmployeeShift> validEmployeeShift = shiftDao.get(1L);
@@ -77,7 +77,6 @@ public class EmployeeShiftDaoImplTest {
     @Test(expected = EmployeeShiftCreationFailedException.class)
     public void save_shouldThrowError_forInvalidEmployeeShiftObject() {
         EmployeeShift shift = new EmployeeShift();
-        shift.setDay("This string is going to be too long to fit into the database");
 
         shiftDao.save(shift);
     }
@@ -91,7 +90,7 @@ public class EmployeeShiftDaoImplTest {
 
         assertThat(validEmployeeShift.isPresent()).isEqualTo(true);
         assertThat(validEmployeeShift.get().getEmployeeId()).isEqualTo(1L);
-        assertThat(validEmployeeShift.get().getDay()).isEqualTo("MONDAY");
+        assertThat(validEmployeeShift.get().getDay()).isEqualTo(2);
         assertThat(validEmployeeShift.get().getStartTime()).isEqualTo(LocalTime.of(9, 0));
         assertThat(validEmployeeShift.get().getEndTime()).isEqualTo(LocalTime.of(17, 30));
     }
@@ -118,8 +117,8 @@ public class EmployeeShiftDaoImplTest {
         List<EmployeeShift> shifts = shiftDao.getAll();
 
         assertThat(shifts).isNotNull().hasSize(2);
-        assertThat(shifts.contains(new EmployeeShift(1L,1L, "MONDAY", LocalTime.of(9, 0), LocalTime.of(17,30)))).isTrue();
-        assertThat(shifts.contains(new EmployeeShift(2L,1L, "TUESDAY", LocalTime.of(10, 0), LocalTime.of(19, 30)))).isTrue();
+        assertThat(shifts.contains(new EmployeeShift(1L,1L, 2, LocalTime.of(9, 0), LocalTime.of(17,30)))).isTrue();
+        assertThat(shifts.contains(new EmployeeShift(2L,1L, 3, LocalTime.of(10, 0), LocalTime.of(19, 30)))).isTrue();
 
     }
 
@@ -137,12 +136,12 @@ public class EmployeeShiftDaoImplTest {
         ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_ONE_EMPLOYEE_SHIFT_T_SQL_SCRIPT));
         connection.close();
 
-        shiftDao.update(new EmployeeShift(1L,1L, "THURSDAY", LocalTime.of(8, 0), LocalTime.of(12,30)));
+        shiftDao.update(new EmployeeShift(1L,1L, 5, LocalTime.of(8, 0), LocalTime.of(12,30)));
 
         Optional<EmployeeShift> updatedEmployeeShift = shiftDao.get(1L);
         assertThat(updatedEmployeeShift.isPresent()).isEqualTo(true);
         assertThat(updatedEmployeeShift.get().getEmployeeId()).isEqualTo(1L);
-        assertThat(updatedEmployeeShift.get().getDay()).isEqualTo("THURSDAY");
+        assertThat(updatedEmployeeShift.get().getDay()).isEqualTo(5);
         assertThat(updatedEmployeeShift.get().getStartTime()).isEqualTo(LocalTime.of(8, 0));
         assertThat(updatedEmployeeShift.get().getEndTime()).isEqualTo(LocalTime.of(12, 30));
     }

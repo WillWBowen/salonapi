@@ -10,7 +10,7 @@ public class EmployeeShiftRowMapper implements RowMapper<EmployeeShift> {
     public EmployeeShift mapRow(ResultSet rs, int rowNum) throws SQLException {
         EmployeeShift employeeShift = new EmployeeShift();
         employeeShift.setId(rs.getLong("id"));
-        employeeShift.setDay(rs.getString("day"));
+        employeeShift.setDay(rs.getInt("day"));
         employeeShift.setEmployeeId(rs.getLong("employees_id"));
         employeeShift.setStartTime(rs.getTime("start_time").toLocalTime());
         employeeShift.setEndTime(rs.getTime("end_time").toLocalTime());
