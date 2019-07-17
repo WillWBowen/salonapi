@@ -16,6 +16,7 @@ The goal of this project is to act as a backend api for two or three UI projects
 - [x] Create GitHub repository
 - [x] Build Proof of Concept
 - [x] Add testing
+- [ ] Implement security
 - [ ] Build controllers for the following 
     - [ ] Employees
     - [ ] Customers
