@@ -119,6 +119,7 @@ public class RoleDaoImplTest {
     public void getAll_shouldYieldListOfRoles_forNonemptyDatabase() throws SQLException{
         Connection connection = jdbcTemplate.getDataSource().getConnection();
         ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_TWO_ROLES_T_SQL_SCRIPT));
+        connection.close();
 
         List<Role> roles = roleDao.getAll();
 

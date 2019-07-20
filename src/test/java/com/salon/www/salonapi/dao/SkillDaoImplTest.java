@@ -104,6 +104,7 @@ public class SkillDaoImplTest {
     public void getAll_shouldYieldListOfSkills_forNonemptyDatabase() throws SQLException{
         Connection connection = jdbcTemplate.getDataSource().getConnection();
         ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_TWO_SKILLS_T_SQL_SCRIPT));
+        connection.close();
 
         List<Skill> skills = skillDao.getAll();
 

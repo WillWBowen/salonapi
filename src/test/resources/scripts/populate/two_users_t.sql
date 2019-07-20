@@ -1,2 +1,2 @@
-INSERT INTO users(id, username, password) VALUES (1, 'username', 'password');
-INSERT INTO users(id, username, password) VALUES (2, 'other', 'different');
+INSERT INTO users(id, username, password, email, enabled) VALUES (1, 'username', 'password', 'test@email.com', TRUE);
+INSERT INTO users(id, username, password, email, enabled) VALUES (2, 'other', 'different', 'second@test.com', TRUE);

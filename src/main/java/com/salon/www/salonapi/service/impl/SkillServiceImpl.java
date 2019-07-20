@@ -5,10 +5,12 @@ import com.salon.www.salonapi.exception.SkillCreationFailedException;
 import com.salon.www.salonapi.exception.SkillNotFoundException;
 import com.salon.www.salonapi.model.Skill;
 import com.salon.www.salonapi.service.SkillService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 
+@Log4j2
 @Service("skillService")
 public class SkillServiceImpl implements SkillService {
 
@@ -25,7 +27,8 @@ public class SkillServiceImpl implements SkillService {
 
     @Override
     public void createSkill(Skill skill) {
-            skillDao.save(skill);
+       log.info("Save the skill {}", skill);
+       skillDao.save(skill);
 
     }
 }

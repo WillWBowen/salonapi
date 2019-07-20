@@ -15,4 +15,10 @@ spring:
       max-idle: 5
 
 jwt:
+  header: Authorization
   secret: supersecret
+  expiration: 28800
+  route:
+    authentication:
+      path: /auth
+      refresh: /refresh

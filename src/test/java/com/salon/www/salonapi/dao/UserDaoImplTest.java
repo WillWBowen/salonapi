@@ -2,7 +2,8 @@ package com.salon.www.salonapi.dao;
 
 import com.salon.www.salonapi.exception.*;
 import com.salon.www.salonapi.model.Role;
-import com.salon.www.salonapi.model.UserDto;
+import com.salon.www.salonapi.model.security.User;
+import lombok.extern.log4j.Log4j2;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,11 +20,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+@Log4j2
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class UserDaoImplTest {
@@ -55,79 +56,81 @@ public class UserDaoImplTest {
     }
 
     @Test
-    public void save_shouldAddUserDtoToDatabase() {
-        UserDto user = new UserDto("username", "password");
+    public void save_shouldAddUserToDatabase() {
+        User user = new User("username", "password", "test@email.com");
         userDao.save(user);
 
-        Optional<UserDto> validUserDto = userDao.get(1L);
-
-        assertThat(validUserDto.isPresent()).isEqualTo(true);
-        assertThat(validUserDto.get().getUsername()).isEqualTo(user.getUsername());
+        Optional<User> validUser = userDao.get(1L);
+        log.debug(validUser);
+        assertThat(validUser.isPresent()).isEqualTo(true);
+        assertThat(validUser.get().getUsername()).isEqualTo(user.getUsername());
+        assertThat(validUser.get().getPassword()).isEqualTo(user.getPassword());
+        assertThat(validUser.get().getEmail()).isEqualTo(user.getEmail());
     }
 
     @Test(expected = UserCreationFailedException.class)
-    public void save_shouldThrowError_forInvalidUserDtoObject() {
-        UserDto user = new UserDto();
+    public void save_shouldThrowError_forInvalidUserObject() {
+        User user = new User();
         user.setUsername("This string is going to be too long to fit into the database");
 
         userDao.save(user);
     }
 
     @Test
-    public void get_shouldReturnValidUserDto_forExistingUserDto() throws Exception {
+    public void get_shouldReturnValidUser_forExistingUser() throws Exception {
         Connection connection = jdbcTemplate.getDataSource().getConnection();
         ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_ONE_USER_T_SQL_SCRIPT));
         connection.close();
-        Optional<UserDto> validUser = userDao.get(1L);
+        Optional<User> validUser = userDao.get(1L);
 
         assertThat(validUser.isPresent()).isEqualTo(true);
         assertThat(validUser.get().getUsername()).isEqualTo("username");
-        assertThat(validUser.get().getPassword()).isEqualTo("REDACTED");
+        assertThat(validUser.get().getPassword()).isEqualTo("password");
     }
 
     @Test
-    public void findByUsername_shouldReturnInvalidUserDto_forEmptyDatabase() {
-        Optional<UserDto> invalid = userDao.findByUsername("RandomUserName");
+    public void findByUsername_shouldReturnInvalidUser_forEmptyDatabase() {
+        Optional<User> invalid = userDao.findByUsername("RandomUserName");
 
         assertThat(invalid.isPresent()).isFalse();
     }
 
     @Test
-    public void findByUsername_shouldReturnValidUserDto_forExistingUserDto() throws Exception {
+    public void findByUsername_shouldReturnValidUser_forExistingUser() throws Exception {
         Connection connection = jdbcTemplate.getDataSource().getConnection();
         ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_ONE_USER_T_SQL_SCRIPT));
         connection.close();
-        Optional<UserDto> validUser = userDao.findByUsername("username");
+        Optional<User> validUser = userDao.findByUsername("username");
 
         assertThat(validUser.isPresent()).isEqualTo(true);
         assertThat(validUser.get().getUsername()).isEqualTo("username");
-        assertThat(validUser.get().getPassword()).isEqualTo("REDACTED");
+        assertThat(validUser.get().getPassword()).isEqualTo("password");
     }
 
     @Test
-    public void get_shouldReturnInvalidUserDto_forEmptyDatabase() {
-        Optional<UserDto> invalid = userDao.get(new Random().nextLong());
+    public void get_shouldReturnInvalidUser_forEmptyDatabase() {
+        Optional<User> invalid = userDao.get(new Random().nextLong());
 
         assertThat(invalid.isPresent()).isFalse();
     }
 
     @Test
     public void getAll_shouldYieldEmptyList_forEmptyDatabase() {
-        List<UserDto> noUsers = userDao.getAll();
+        List<User> noUsers = userDao.getAll();
 
         assertThat(noUsers).isNullOrEmpty();
     }
 
     @Test
-    public void getAll_shouldYieldListOfUserDtos_forNonemptyDatabase() throws SQLException{
+    public void getAll_shouldYieldListOfUsers_forNonemptyDatabase() throws SQLException{
         Connection connection = jdbcTemplate.getDataSource().getConnection();
         ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_TWO_USERS_T_SQL_SCRIPT));
 
-        List<UserDto> users = userDao.getAll();
+        List<User> users = userDao.getAll();
 
         assertThat(users).isNotNull().hasSize(2);
-        assertThat(users.contains(new UserDto(1L, "username", "REDACTED"))).isTrue();
-        assertThat(users.contains(new UserDto(2L, "other", "REDACTED"))).isTrue();
+        assertThat(users.contains(new User(1L,"username", "password", "test@email.com", Boolean.TRUE, null, null))).isTrue();
+        assertThat(users.contains(new User(2L, "other", "different", "second@test.com", Boolean.TRUE, null, null))).isTrue();
 
     }
 
@@ -137,7 +140,7 @@ public class UserDaoImplTest {
         ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_ONE_USER_T_SQL_SCRIPT));
         connection.close();
 
-        UserDto user = new UserDto();
+        User user = new User();
         user.setId(1L);
         List<Role> noRoles = userDao.getUserRoles(user);
 
@@ -150,7 +153,7 @@ public class UserDaoImplTest {
         ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_USER_WITH_ROLES_T_SQL_SCRIPT));
         connection.close();
 
-        UserDto user = new UserDto();
+        User user = new User();
         user.setId(1L);
         List<Role> userRoles = userDao.getUserRoles(user);
 
@@ -162,7 +165,7 @@ public class UserDaoImplTest {
 
     @Test(expected = UserUpdateFailedException.class)
     public void update_shouldThrowException_forNonExistingUser() {
-        UserDto notFound = new UserDto();
+        User notFound = new User();
         notFound.setId(new Random().nextLong());
 
         userDao.update(notFound);
@@ -174,12 +177,13 @@ public class UserDaoImplTest {
         ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_ONE_USER_T_SQL_SCRIPT));
         connection.close();
 
-        userDao.update(new UserDto(1L,"differentname", "newPassword"));
+        userDao.update(new User(1L,"differentname", "newPassword", "test@email.com"));
 
-        Optional<UserDto> updatedUser = userDao.get(1L);
+        Optional<User> updatedUser = userDao.get(1L);
         assertThat(updatedUser).isPresent();
         assertThat(updatedUser.get().getUsername()).isEqualTo("differentname");
-        assertThat(updatedUser.get().getPassword()).isEqualTo("REDACTED");
+        assertThat(updatedUser.get().getPassword()).isEqualTo("newPassword");
+        assertThat(updatedUser.get().getEmail()).isEqualTo("test@email.com");
     }
 
     @Test
@@ -187,7 +191,7 @@ public class UserDaoImplTest {
         Connection connection = jdbcTemplate.getDataSource().getConnection();
         ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_ONE_USER_T_SQL_SCRIPT));
         connection.close();
-        UserDto user = new UserDto();
+        User user = new User();
         user.setId(1L);
         userDao.delete(user);
 
@@ -197,7 +201,7 @@ public class UserDaoImplTest {
 
     @Test(expected = UserDeletionFailedException.class)
     public void delete_shouldFailForNonExistentSkill() {
-        UserDto user = new UserDto();
+        User user = new User();
         user.setId(new Random().nextLong());
 
         userDao.delete(user);

@@ -1,5 +1,6 @@
 package com.salon.www.salonapi.integration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.salon.www.salonapi.dao.SkillDAO;
 import com.salon.www.salonapi.model.Skill;
 import org.junit.After;
@@ -8,19 +9,24 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import javax.script.ScriptException;
 import java.sql.SQLException;
-import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @RunWith(SpringRunner.class)
@@ -28,10 +34,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SkillsIntegrationTest {
 
     @Autowired
-    private TestRestTemplate restTemplate;
+    private JdbcTemplate jdbcTemplate;
+
+    private MockMvc mvc;
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private WebApplicationContext context;
+
+    @Before
+    public void setup() {
+        mvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
+    }
 
     @Autowired
     private SkillDAO skillDao;
@@ -50,31 +66,33 @@ public class SkillsIntegrationTest {
     }
 
     @Test
-    public void getSkill_returnsSkillDetails() {
+    @WithMockUser(roles = "USER")
+    public void getSkill_returnsSkillDetails() throws Exception{
 
         //arrange
         skillDao.save(new Skill(1L, "manicure", 20));
         //act
-        ResponseEntity<Skill> response = restTemplate.getForEntity("/skills/1", Skill.class);
-        //assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().getName()).isEqualTo("manicure");
-        assertThat(response.getBody().getPrice()).isEqualTo(20);
+        mvc.perform(MockMvcRequestBuilders.get("/skills/1"))
+                //assert
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.name").value("manicure"))
+                .andExpect(jsonPath("$.price").value(20));
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     public void postSkill_addsNewSkillToDatabase() throws Exception {
         //arrange
         Skill skill = new Skill("pedicure", 30);
-        Skill postedSkill;
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(skill);
+
         //act
-        ResponseEntity<Skill> response = restTemplate.postForEntity("/skills", skill, Skill.class);
-        postedSkill = skillDao.get(1L).get();
-        //assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(postedSkill.getName()).isEqualTo("pedicure");
-        assertThat(postedSkill.getPrice()).isEqualTo(30);
-
-
+        mvc.perform(MockMvcRequestBuilders.post("/skills")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                // assert
+                .andExpect(status().isCreated());
     }
 }

@@ -7,7 +7,7 @@ import com.salon.www.salonapi.exception.UserUpdateFailedException;
 import com.salon.www.salonapi.mapper.RoleRowMapper;
 import com.salon.www.salonapi.mapper.UserRowMapper;
 import com.salon.www.salonapi.model.Role;
-import com.salon.www.salonapi.model.UserDto;
+import com.salon.www.salonapi.model.security.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -26,20 +26,20 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public Optional<UserDto> get(long id) {
+    public Optional<User> get(long id) {
         String sql = "SELECT * FROM users WHERE id=?";
         return jdbcTemplate.query(sql,
                 rs -> rs.next() ? Optional.ofNullable(new UserRowMapper().mapRow(rs, 1)) : Optional.empty(),
                 id);
     }
 
-    public List<UserDto> getAll() {
+    public List<User> getAll() {
         return jdbcTemplate.query(
                 "SELECT * FROM users", new UserRowMapper()
         );
     }
 
-    public void update(UserDto user) {
+    public void update(User user) {
         if(jdbcTemplate.update(
                 "UPDATE users SET username=?, password=? WHERE id=?",
                 user.getUsername(),
@@ -49,7 +49,7 @@ public class UserDAOImpl implements UserDAO {
         }
     }
 
-    public void delete(UserDto user) {
+    public void delete(User user) {
         if(jdbcTemplate.update(
                 "DELETE FROM users WHERE id = ?",
                 user.getId())!= 1) {
@@ -58,12 +58,13 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public void save(UserDto user) {
+    public void save(User user) {
         try {
             jdbcTemplate.update(
-                    "INSERT INTO users(username, password) VALUES(?,?)",
-                    user.getUsername(),
-                    user.getPassword());
+                "INSERT INTO users(username, password, email) VALUES(?,?, ?)",
+                user.getUsername(),
+                user.getPassword(),
+                user.getEmail());
         } catch(Exception ex) {
             throw new UserCreationFailedException();
         }
@@ -71,7 +72,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public Optional<UserDto> findByUsername(String username) {
+    public Optional<User> findByUsername(String username) {
         String sql = "SELECT * FROM users WHERE username=?";
         return jdbcTemplate.query(sql,
                 rs -> rs.next() ? Optional.ofNullable(new UserRowMapper().mapRow(rs, 1)) : Optional.empty(),
@@ -79,7 +80,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public List<Role> getUserRoles(UserDto user) {
+    public List<Role> getUserRoles(User user) {
         return jdbcTemplate.query(
                 "SELECT * FROM roles r " +
                         "INNER JOIN users_x_roles uxr on r.id = uxr.roles_id " +

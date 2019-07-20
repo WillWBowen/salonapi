@@ -2,3 +2,12 @@ spring:
   datasource:
     url: jdbc:h2:mem:test;MODE=MYSQL;DB_CLOSE_DELAY=-1
     driver-class-name: org.h2.Driver
+
+jwt:
+  header: Authorization
+  secret: supersecret
+  expiration: 28800
+  route:
+    authentication:
+      path: /auth
+      refresh: /refresh
