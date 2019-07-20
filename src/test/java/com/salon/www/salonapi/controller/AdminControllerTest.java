@@ -1,8 +1,6 @@
 package com.salon.www.salonapi.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.salon.www.salonapi.exception.BadInputException;
-import com.salon.www.salonapi.exception.EmployeeCreationFailedException;
 import com.salon.www.salonapi.model.Customer;
 import com.salon.www.salonapi.model.Employee;
 import com.salon.www.salonapi.security.JwtTokenUtil;
@@ -11,7 +9,6 @@ import com.salon.www.salonapi.service.EmployeeService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -19,12 +16,10 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Arrays;
-import java.util.List;
 
 import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
