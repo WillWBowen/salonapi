@@ -26,12 +26,13 @@ public class SkillServiceImpl implements SkillService {
 
     @Override
     public List<Skill> getSkills() {
+        // TODO: implement getSkills method
         return null;
     }
 
     @Override
     public void updateSkill(Skill skill) {
-        // blank for now.
+        // TODO: implement updateSkill method
     }
 
     @Override

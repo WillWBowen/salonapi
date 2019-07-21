@@ -10,18 +10,20 @@ import java.util.List;
 public class EmployeeServiceImpl implements EmployeeService {
 
     public List<Employee> getEmployees() {
+        // TODO: Implement getEmployees method
         return null;
     }
 
     public Employee getEmployee(Long id) {
+        // TODO: Implement getEmployee method
         return null;
     }
 
     public void createEmployee(Employee employee) {
-        // Blank for now
+        // TODO: Implement createEmployee method
     }
 
     public void updateEmployee(Employee employee) {
-        // Blank for now
+        // TODO: Implement updateEmployee method
     }
 }

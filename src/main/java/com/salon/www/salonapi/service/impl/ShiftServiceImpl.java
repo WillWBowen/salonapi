@@ -10,21 +10,23 @@ import java.util.List;
 public class ShiftServiceImpl implements ShiftService {
     @Override
     public void createShift(EmployeeShift shift) {
-
+        // TODO: implement createShift method
     }
 
     @Override
     public EmployeeShift getShift(long shiftId) {
+        // TODO: implement getShift method
         return null;
     }
 
     @Override
     public List<EmployeeShift> getShifts() {
+        // TODO: implement getShifts method
         return null;
     }
 
     @Override
     public void updateShift(EmployeeShift shift) {
-
+        // TODO: implement updateShift method
     }
 }
