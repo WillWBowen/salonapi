@@ -1,0 +1,1 @@
+INSERT INTO authorities (id, name) VALUES (1, 'ROLE_USER');

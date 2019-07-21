@@ -1,7 +1,7 @@
 package com.salon.www.salonapi.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.salon.www.salonapi.dao.SkillDAO;
+import com.salon.www.salonapi.dao.itf.SkillDAO;
 import com.salon.www.salonapi.model.Skill;
 import org.junit.After;
 import org.junit.Before;

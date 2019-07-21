@@ -1,7 +1,7 @@
 //package com.salon.www.salonapi.controller;
 //
 //import com.salon.www.salonapi.model.Customer;
-//import com.salon.www.salonapi.service.CustomerService;
+//import com.salon.www.salonapi.service.itf.CustomerService;
 //import lombok.SneakyThrows;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.http.HttpHeaders;

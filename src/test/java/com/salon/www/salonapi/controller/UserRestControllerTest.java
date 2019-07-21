@@ -45,6 +45,9 @@ public class UserRestControllerTest {
     @MockBean
     private JwtUserDetailsService jwtUserDetailsService;
 
+    @MockBean
+    private JwtUserFactory jwtUserFactory;
+
     @Before
     public void Setup() {
         mvc = MockMvcBuilders
@@ -74,7 +77,7 @@ public class UserRestControllerTest {
         user.setEnabled(Boolean.TRUE);
         user.setLastPasswordResetDate(new Date(System.currentTimeMillis() + 1000 * 1000));
 
-        JwtUser jwtUser = JwtUserFactory.create(user);
+        JwtUser jwtUser = jwtUserFactory.create(user);
 
         when(jwtTokenUtil.getUsernameFromToken(any())).thenReturn(user.getUsername());
 

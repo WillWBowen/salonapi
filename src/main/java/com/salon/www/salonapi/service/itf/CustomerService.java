@@ -1,4 +1,4 @@
-package com.salon.www.salonapi.service;
+package com.salon.www.salonapi.service.itf;
 
 import com.salon.www.salonapi.model.Customer;
 

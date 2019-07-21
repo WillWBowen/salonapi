@@ -1,10 +1,10 @@
 package com.salon.www.salonapi.service;
 
-import com.salon.www.salonapi.dao.SkillDAO;
-import com.salon.www.salonapi.exception.SkillCreationFailedException;
+import com.salon.www.salonapi.dao.itf.SkillDAO;
 import com.salon.www.salonapi.exception.SkillNotFoundException;
 import com.salon.www.salonapi.model.Skill;
 import com.salon.www.salonapi.service.impl.SkillServiceImpl;
+import com.salon.www.salonapi.service.itf.SkillService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

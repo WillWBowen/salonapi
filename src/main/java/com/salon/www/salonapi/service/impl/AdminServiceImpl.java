@@ -1,12 +1,12 @@
 package com.salon.www.salonapi.service.impl;
 
-import com.salon.www.salonapi.dao.EmployeeDAO;
-import com.salon.www.salonapi.dao.EmployeeShiftDAO;
-import com.salon.www.salonapi.dao.SkillDAO;
+import com.salon.www.salonapi.dao.itf.EmployeeDAO;
+import com.salon.www.salonapi.dao.itf.EmployeeShiftDAO;
+import com.salon.www.salonapi.dao.itf.SkillDAO;
 import com.salon.www.salonapi.model.Employee;
 import com.salon.www.salonapi.model.EmployeeShift;
 import com.salon.www.salonapi.model.Skill;
-import com.salon.www.salonapi.service.AdminService;
+import com.salon.www.salonapi.service.itf.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,16 +24,6 @@ public class AdminServiceImpl implements AdminService {
         this.employeeDao = employeeDao;
         this.employeeShiftDao = employeeShiftDao;
         this.skillDao = skillDao;
-    }
-
-    @Override
-    public void addEmployee(Employee employee) {
-        employeeDao.save(employee);
-    }
-
-    @Override
-    public void updateEmployee(Employee employee) {
-        employeeDao.update(employee);
     }
 
     @Override

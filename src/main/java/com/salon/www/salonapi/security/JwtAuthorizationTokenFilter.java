@@ -59,7 +59,7 @@ public class JwtAuthorizationTokenFilter extends OncePerRequestFilter {
 
         log.debug("Checking authentication for user '{}'", username);
         if(username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            log.debug("security context was null, so authorizing user");
+            log.info("security context was null, so authorizing user");
 
             // It is not necessary to load the use details from the database. You could also store the information
             // in the token and read it from there.

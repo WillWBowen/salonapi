@@ -1,5 +1,6 @@
 package com.salon.www.salonapi.dao;
 
+import com.salon.www.salonapi.dao.itf.AdministratorDAO;
 import com.salon.www.salonapi.exception.AdministratorCreationFailedException;
 import com.salon.www.salonapi.exception.AdministratorDeletionFailedException;
 import com.salon.www.salonapi.exception.AdministratorUpdateFailedException;

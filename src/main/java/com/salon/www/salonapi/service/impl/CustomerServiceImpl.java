@@ -1,8 +1,8 @@
 package com.salon.www.salonapi.service.impl;
 
 import com.salon.www.salonapi.model.Customer;
-import com.salon.www.salonapi.dao.CustomerDAO;
-import com.salon.www.salonapi.service.CustomerService;
+import com.salon.www.salonapi.dao.itf.CustomerDAO;
+import com.salon.www.salonapi.service.itf.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

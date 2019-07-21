@@ -1,4 +1,4 @@
-package com.salon.www.salonapi.dao;
+package com.salon.www.salonapi.dao.itf;
 
 import com.salon.www.salonapi.exception.RoleUpdateFailedException;
 

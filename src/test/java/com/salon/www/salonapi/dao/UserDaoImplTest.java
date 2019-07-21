@@ -1,7 +1,10 @@
 package com.salon.www.salonapi.dao;
 
+import com.salon.www.salonapi.dao.itf.UserDAO;
 import com.salon.www.salonapi.exception.*;
 import com.salon.www.salonapi.model.Role;
+import com.salon.www.salonapi.model.security.Authority;
+import com.salon.www.salonapi.model.security.AuthorityName;
 import com.salon.www.salonapi.model.security.User;
 import lombok.extern.log4j.Log4j2;
 import org.junit.After;
@@ -34,6 +37,7 @@ public class UserDaoImplTest {
     private static final String POPULATE_ONE_USER_T_SQL_SCRIPT = "scripts/populate/one_user_t.sql";
     private static final String POPULATE_TWO_USERS_T_SQL_SCRIPT = "scripts/populate/two_users_t.sql";
     private static final String POPULATE_USER_WITH_ROLES_T_SQL_SCRIPT = "scripts/populate/one_user_two_roles_t.sql";
+    private static final String POPULATE_ONE_USER_TWO_AUTHORITIES_T_SQL_SCRIPT = "scripts/populate/one_user_two_authorities_t.sql";
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -207,4 +211,20 @@ public class UserDaoImplTest {
         userDao.delete(user);
     }
 
+    @Test
+    public void getAuthoritiesForUser_shouldReturnListOfAuthorities() throws SQLException{
+        Connection connection = jdbcTemplate.getDataSource().getConnection();
+        ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_ONE_USER_TWO_AUTHORITIES_T_SQL_SCRIPT));
+        connection.close();
+        User user = new User();
+        user.setId(1L);
+
+        List<Authority> authorities = userDao.getCapabilitiesForUser(user);
+
+        assertThat(authorities).isNotNull().hasSize(2);
+        assertThat(authorities.contains(new Authority(1L, AuthorityName.ROLE_USER, null))).isTrue();
+        assertThat(authorities.contains(new Authority(2L, AuthorityName.ROLE_ADMIN, null))).isTrue();
+
+
+    }
 }

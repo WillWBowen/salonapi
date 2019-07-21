@@ -1,6 +1,6 @@
-package com.salon.www.salonapi.dao;
+package com.salon.www.salonapi.dao.itf;
 
-import com.salon.www.salonapi.model.Employee;
+import com.salon.www.salonapi.dao.itf.Dao;
 import com.salon.www.salonapi.model.Skill;
 
 import java.util.List;

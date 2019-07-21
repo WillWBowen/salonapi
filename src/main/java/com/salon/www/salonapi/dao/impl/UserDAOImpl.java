@@ -1,12 +1,14 @@
 package com.salon.www.salonapi.dao.impl;
 
-import com.salon.www.salonapi.dao.UserDAO;
+import com.salon.www.salonapi.dao.itf.UserDAO;
 import com.salon.www.salonapi.exception.UserCreationFailedException;
 import com.salon.www.salonapi.exception.UserDeletionFailedException;
 import com.salon.www.salonapi.exception.UserUpdateFailedException;
+import com.salon.www.salonapi.mapper.AuthorityRowMapper;
 import com.salon.www.salonapi.mapper.RoleRowMapper;
 import com.salon.www.salonapi.mapper.UserRowMapper;
 import com.salon.www.salonapi.model.Role;
+import com.salon.www.salonapi.model.security.Authority;
 import com.salon.www.salonapi.model.security.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -87,6 +89,23 @@ public class UserDAOImpl implements UserDAO {
                         "WHERE uxr.users_id=?",
                 new Object[] {user.getId()},
                 new RoleRowMapper()
+        );
+    }
+
+    @Override
+    public List<Authority> getCapabilitiesForUser(User user) {
+        String sql = "SELECT id, name FROM authorities a " +
+                     "INNER JOIN(" +
+                         "SELECT authorities_id FROM roles_x_authorities rxa " +
+                         "INNER JOIN (" +
+                             "SELECT id as role_id FROM roles r " +
+                             "INNER JOIN users_x_roles uxr ON uxr.users_id = ?" +
+                         ") ri on ri.role_id = rxa.roles_id" +
+                      ") ai on ai.authorities_id = a.id";
+        return jdbcTemplate.query(
+                sql,
+                new Object[] {user.getId()},
+                new AuthorityRowMapper()
         );
     }
 }

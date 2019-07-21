@@ -5,21 +5,17 @@ import com.salon.www.salonapi.model.security.User;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Log4j2
+@Component
 public class JwtUserFactory {
 
-    private JwtUserFactory() {
+    public JwtUser create(User user) {
 
-    }
-
-    public static JwtUser create(User user) {
-        log.debug("Creating new jwt user");
-//        log.debug("Id: {}", user.getId());
-//        log.debug("username: {}", user.getUsername());
         return new JwtUser(
                 user.getId(),
                 user.getUsername(),
@@ -31,7 +27,7 @@ public class JwtUserFactory {
         );
     }
 
-    private static List<GrantedAuthority> mapToGrantedAuthorities(List<Authority> authorities) {
+    private List<GrantedAuthority> mapToGrantedAuthorities(List<Authority> authorities) {
         return authorities.stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.getName().name()))
                 .collect(Collectors.toList());

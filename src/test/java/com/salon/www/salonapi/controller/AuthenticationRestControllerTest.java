@@ -13,6 +13,7 @@ import org.h2.server.web.WebApp;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -21,6 +22,8 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -34,12 +37,15 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -50,6 +56,9 @@ public class AuthenticationRestControllerTest {
 
     @Autowired
     WebApplicationContext context;
+
+    @Autowired
+    private JwtUserFactory jwtUserFactory;
 
     @MockBean
     private AuthenticationManager authenticationManager;
@@ -81,6 +90,34 @@ public class AuthenticationRestControllerTest {
     }
 
     @Test
+    @WithAnonymousUser
+    public void authenticationWthAnonymousUser_Disabled() throws Exception {
+
+        JwtAuthenticationRequest jwtAuthenticationRequest = new JwtAuthenticationRequest("username", "password");
+        when(authenticationManager.authenticate(any())).thenThrow(DisabledException.class);
+        mvc.perform(post("/auth")
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .content(new ObjectMapper().writeValueAsString(jwtAuthenticationRequest)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string(containsString("User is disabled!")));
+    }
+
+    @Test
+    @WithAnonymousUser
+    public void authenticationWthAnonymousUser_BadCredentials() throws Exception {
+
+        JwtAuthenticationRequest jwtAuthenticationRequest = new JwtAuthenticationRequest("username", "password");
+        when(authenticationManager.authenticate(any())).thenThrow(BadCredentialsException.class);
+        mvc.perform(post("/auth")
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .content(new ObjectMapper().writeValueAsString(jwtAuthenticationRequest)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string(containsString("Bad credentials!")));
+    }
+
+    @Test
     @WithMockUser(roles = "USER")
     public void successfulRefreshTokenWithUserRole() throws Exception {
         Authority authority = new Authority();
@@ -94,7 +131,7 @@ public class AuthenticationRestControllerTest {
         user.setEnabled(Boolean.TRUE);
         user.setLastPasswordResetDate(new Date(System.currentTimeMillis() + 1000 * 1000));
 
-        JwtUser jwtUser = JwtUserFactory.create(user);
+        JwtUser jwtUser = jwtUserFactory.create(user);
 
         when(jwtTokenUtil.getUsernameFromToken(any())).thenReturn(user.getUsername());
 
@@ -121,7 +158,7 @@ public class AuthenticationRestControllerTest {
         user.setEnabled(Boolean.TRUE);
         user.setLastPasswordResetDate(new Date(System.currentTimeMillis() + 1000 * 1000));
 
-        JwtUser jwtUser = JwtUserFactory.create(user);
+        JwtUser jwtUser = jwtUserFactory.create(user);
 
         when(jwtTokenUtil.getUsernameFromToken(any())).thenReturn(user.getUsername());
 
@@ -132,6 +169,33 @@ public class AuthenticationRestControllerTest {
         mvc.perform(get("/refresh")
                 .header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a"))
                 .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void refreshTokenWithAdminRole_returnsBadRequest() throws Exception {
+        Authority authority = new Authority();
+        authority.setId(1L);
+        authority.setName(AuthorityName.ROLE_ADMIN);
+        List<Authority> authorities = Arrays.asList(authority);
+
+        User user = new User();
+        user.setUsername("admin");
+        user.setAuthorities(authorities);
+        user.setEnabled(Boolean.TRUE);
+        user.setLastPasswordResetDate(new Date(System.currentTimeMillis() + 1000 * 1000));
+
+        JwtUser jwtUser = jwtUserFactory.create(user);
+
+        when(jwtTokenUtil.getUsernameFromToken(any())).thenReturn(user.getUsername());
+
+        when(jwtUserDetailsService.loadUserByUsername(eq(user.getUsername()))).thenReturn(jwtUser);
+
+        when(jwtTokenUtil.canTokenBeRefreshed(any(), any())).thenReturn(false);
+
+        mvc.perform(get("/refresh")
+                .header("Authorization", "Bearer 5d1103e-b3e1-4ae9-b606-46c9c1bc915a"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

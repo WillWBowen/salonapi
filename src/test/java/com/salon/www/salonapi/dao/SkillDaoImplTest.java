@@ -1,5 +1,6 @@
 package com.salon.www.salonapi.dao;
 
+import com.salon.www.salonapi.dao.itf.SkillDAO;
 import com.salon.www.salonapi.exception.SkillCreationFailedException;
 import com.salon.www.salonapi.exception.SkillDeletionFailedException;
 import com.salon.www.salonapi.exception.SkillUpdateFailedException;

@@ -4,6 +4,7 @@ import com.salon.www.salonapi.model.security.JwtAuthenticationRequest;
 import com.salon.www.salonapi.security.JwtTokenUtil;
 import com.salon.www.salonapi.model.security.JwtAuthenticationResponse;
 import com.salon.www.salonapi.security.JwtUser;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
 
+@Log4j2
 @RestController
 public class AuthenticationRestController {
 
@@ -41,7 +43,8 @@ public class AuthenticationRestController {
     }
 
     @RequestMapping(value="${jwt.route.authentication.path}", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest) throws AuthenticationException {
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest) throws JwtAuthenticationException {
+        log.info("Request recieved, running createAuthenticationToken");
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
         // Reload password post-security so we can generate the token
@@ -68,11 +71,12 @@ public class AuthenticationRestController {
     }
 
     @ExceptionHandler({JwtAuthenticationException.class})
-    public ResponseEntity<String> handleAuthenticationException(AuthenticationException e) {
+    public ResponseEntity<String> handleAuthenticationException(JwtAuthenticationException e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
     }
 
     private void authenticate(String username, String password) throws JwtAuthenticationException {
+        log.info("Authenticating username and password");
         Objects.requireNonNull(username);
         Objects.requireNonNull(password);
 

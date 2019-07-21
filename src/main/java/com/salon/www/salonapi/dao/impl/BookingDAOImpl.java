@@ -1,6 +1,6 @@
 package com.salon.www.salonapi.dao.impl;
 
-import com.salon.www.salonapi.dao.BookingDAO;
+import com.salon.www.salonapi.dao.itf.BookingDAO;
 import com.salon.www.salonapi.exception.BookingCreationFailedException;
 import com.salon.www.salonapi.exception.BookingDeletionFailedException;
 import com.salon.www.salonapi.exception.BookingUpdateFailedException;

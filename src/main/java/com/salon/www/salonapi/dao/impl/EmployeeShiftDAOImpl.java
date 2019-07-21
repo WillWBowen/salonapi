@@ -1,6 +1,6 @@
 package com.salon.www.salonapi.dao.impl;
 
-import com.salon.www.salonapi.dao.EmployeeShiftDAO;
+import com.salon.www.salonapi.dao.itf.EmployeeShiftDAO;
 import com.salon.www.salonapi.exception.EmployeeShiftCreationFailedException;
 import com.salon.www.salonapi.exception.EmployeeShiftDeletionFailedException;
 import com.salon.www.salonapi.exception.EmployeeShiftUpdateFailedException;

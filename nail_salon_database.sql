@@ -5,9 +5,11 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
 -- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+-- -----------------------------------------------------
 -- Schema library
 -- -----------------------------------------------------
-DROP SCHEMA IF EXISTS `library` ;
 
 -- -----------------------------------------------------
 -- Schema library
@@ -22,9 +24,9 @@ CREATE TABLE IF NOT EXISTS `library`.`users` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(45) NOT NULL,
   `password` VARCHAR(255) NOT NULL,
-  `email` VARCHAR(255) NULL,
+  `email` VARCHAR(255) NULL DEFAULT NULL,
   `enabled` BIT NOT NULL DEFAULT 0,
-  `lastPasswordResetDate` DATE NULL,
+  `lastPasswordResetDate` DATE NULL DEFAULT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
@@ -98,22 +100,11 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `library`.`capabilities`
+-- Table `library`.`authorities`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `library`.`capabilities` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(45) NULL,
-  PRIMARY KEY (`id`))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `library`.`skills`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `library`.`skills` (
+CREATE TABLE IF NOT EXISTS `library`.`authorities` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
-  `price` INT NOT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
@@ -179,28 +170,6 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `library`.`employees_x_skills`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `library`.`employees_x_skills` (
-  `employees_id` BIGINT NOT NULL,
-  `skills_id` BIGINT NOT NULL,
-  PRIMARY KEY (`employees_id`, `skills_id`),
-  INDEX `fk_employees_has_services_services1_idx` (`skills_id` ASC),
-  INDEX `fk_employees_has_services_employees_idx` (`employees_id` ASC),
-  CONSTRAINT `fk_employees_has_services_employees`
-    FOREIGN KEY (`employees_id`)
-    REFERENCES `library`.`employees` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_employees_has_services_services1`
-    FOREIGN KEY (`skills_id`)
-    REFERENCES `library`.`skills` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
 -- Table `library`.`users_x_roles`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `library`.`users_x_roles` (
@@ -223,43 +192,76 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `library`.`roles_x_capabilities`
+-- Table `library`.`roles_x_authorities`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `library`.`roles_x_capabilities` (
+CREATE TABLE IF NOT EXISTS `library`.`roles_x_authorities` (
   `roles_id` BIGINT NOT NULL,
-  `capabilities_id` BIGINT NOT NULL,
-  PRIMARY KEY (`roles_id`, `capabilities_id`),
-  INDEX `fk_roles_has_capabilities_capabilities1_idx` (`capabilities_id` ASC),
-  INDEX `fk_roles_has_capabilities_roles1_idx` (`roles_id` ASC),
-  CONSTRAINT `fk_roles_has_capabilities_roles1`
+  `authorities_id` BIGINT NOT NULL,
+  PRIMARY KEY (`roles_id`, `authorities_id`),
+  INDEX `fk_roles_has_authorities_authorities1_idx` (`authorities_id` ASC),
+  INDEX `fk_roles_has_authorities_roles1_idx` (`roles_id` ASC),
+  CONSTRAINT `fk_roles_has_authorities_roles1`
     FOREIGN KEY (`roles_id`)
     REFERENCES `library`.`roles` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_roles_has_capabilities_capabilities1`
-    FOREIGN KEY (`capabilities_id`)
-    REFERENCES `library`.`capabilities` (`id`)
+  CONSTRAINT `fk_roles_has_authorities_authorities1`
+    FOREIGN KEY (`authorities_id`)
+    REFERENCES `library`.`authorities` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `library`.`bookings_x_services`
+-- Table `library`.`skills`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `library`.`bookings_x_services` (
+CREATE TABLE IF NOT EXISTS `library`.`skills` (
+  `id` BIGINT NOT NULL,
+  `name` VARCHAR(45) NOT NULL,
+  `price` INT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `library`.`employees_x_skills`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `library`.`employees_x_skills` (
+  `employees_id` BIGINT NOT NULL,
+  `skills_id` BIGINT NOT NULL,
+  PRIMARY KEY (`employees_id`, `skills_id`),
+  INDEX `fk_employees_has_skills_skills1_idx` (`skills_id` ASC),
+  INDEX `fk_employees_has_skills_employees1_idx` (`employees_id` ASC),
+  CONSTRAINT `fk_employees_has_skills_employees1`
+    FOREIGN KEY (`employees_id`)
+    REFERENCES `library`.`employees` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_employees_has_skills_skills1`
+    FOREIGN KEY (`skills_id`)
+    REFERENCES `library`.`skills` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `library`.`bookings_x_skills`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `library`.`bookings_x_skills` (
   `bookings_id` BIGINT NOT NULL,
-  `services_id` BIGINT NOT NULL,
-  PRIMARY KEY (`bookings_id`, `services_id`),
-  INDEX `fk_bookings_has_services_services1_idx` (`services_id` ASC),
-  INDEX `fk_bookings_has_services_bookings1_idx` (`bookings_id` ASC),
-  CONSTRAINT `fk_bookings_has_services_bookings1`
+  `skills_id` BIGINT NOT NULL,
+  PRIMARY KEY (`bookings_id`, `skills_id`),
+  INDEX `fk_bookings_has_skills_skills1_idx` (`skills_id` ASC),
+  INDEX `fk_bookings_has_skills_bookings1_idx` (`bookings_id` ASC),
+  CONSTRAINT `fk_bookings_has_skills_bookings1`
     FOREIGN KEY (`bookings_id`)
     REFERENCES `library`.`bookings` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_bookings_has_services_services1`
-    FOREIGN KEY (`services_id`)
+  CONSTRAINT `fk_bookings_has_skills_skills1`
+    FOREIGN KEY (`skills_id`)
     REFERENCES `library`.`skills` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)

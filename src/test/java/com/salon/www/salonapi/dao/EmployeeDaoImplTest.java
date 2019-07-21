@@ -1,5 +1,6 @@
 package com.salon.www.salonapi.dao;
 
+import com.salon.www.salonapi.dao.itf.EmployeeDAO;
 import com.salon.www.salonapi.exception.EmployeeCreationFailedException;
 import com.salon.www.salonapi.exception.EmployeeDeletionFailedException;
 import com.salon.www.salonapi.exception.EmployeeUpdateFailedException;

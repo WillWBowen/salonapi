@@ -1,7 +1,7 @@
 package com.salon.www.salonapi.service.impl;
 
 import com.salon.www.salonapi.model.Employee;
-import com.salon.www.salonapi.service.EmployeeService;
+import com.salon.www.salonapi.service.itf.EmployeeService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +18,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     public void createEmployee(Employee employee) {
+        // Blank for now
+    }
+
+    public void updateEmployee(Employee employee) {
         // Blank for now
     }
 }

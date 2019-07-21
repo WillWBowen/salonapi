@@ -1,5 +1,6 @@
 package com.salon.www.salonapi.dao;
 
+import com.salon.www.salonapi.dao.itf.CustomerDAO;
 import com.salon.www.salonapi.exception.CustomerCreationFailedException;
 import com.salon.www.salonapi.exception.CustomerDeletionFailedException;
 import com.salon.www.salonapi.exception.CustomerUpdateFailedException;

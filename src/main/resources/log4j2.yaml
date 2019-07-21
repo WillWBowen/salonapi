@@ -39,12 +39,3 @@ Configuration:
       AppenderRef:
         - ref: Console_Appender
 
-    Logger:
-      - name: com.salon.www.salonapi
-        level: debug
-        AppenderRef:
-          - ref: File_Appender
-            level: error
-          - ref: RollingFile_Appender
-            level: debug
-

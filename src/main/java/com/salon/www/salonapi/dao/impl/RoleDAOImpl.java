@@ -1,6 +1,6 @@
 package com.salon.www.salonapi.dao.impl;
 
-import com.salon.www.salonapi.dao.RoleDAO;
+import com.salon.www.salonapi.dao.itf.RoleDAO;
 import com.salon.www.salonapi.exception.RoleCreationFailedException;
 import com.salon.www.salonapi.exception.RoleDeletionFailedException;
 import com.salon.www.salonapi.exception.RoleUpdateFailedException;
