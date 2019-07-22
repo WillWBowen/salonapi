@@ -217,7 +217,7 @@ ENGINE = InnoDB;
 -- Table `library`.`skills`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `library`.`skills` (
-  `id` BIGINT NOT NULL,
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
   `price` INT NULL,
   PRIMARY KEY (`id`))

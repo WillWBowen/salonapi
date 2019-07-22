@@ -5,10 +5,12 @@ import com.salon.www.salonapi.dao.itf.CustomerDAO;
 import com.salon.www.salonapi.service.itf.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service("customerService")
+@Transactional
 public class CustomerServiceImpl implements CustomerService {
 
     private CustomerDAO customerDao;
@@ -25,23 +27,5 @@ public class CustomerServiceImpl implements CustomerService {
 
     public Customer getCustomer(Long customerId) {
         return customerDao.get(customerId).orElse(null);
-    }
-
-    public Customer getCustomerByEmail(String email) {
-        return customerDao.getCustomerByEmail(email).orElse(null);
-    }
-
-    public void deleteCustomer(Customer customer) {
-
-        customerDao.delete(customer);
-    }
-
-    public void updateCustomer(Customer customer) {
-        customerDao.update(customer);
-    }
-
-    public void createCustomer(Customer customer) {
-
-        customerDao.save(customer);
     }
 }

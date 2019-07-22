@@ -6,11 +6,13 @@ import com.salon.www.salonapi.model.Skill;
 import com.salon.www.salonapi.service.itf.SkillService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Log4j2
 @Service("skillService")
+@Transactional
 public class SkillServiceImpl implements SkillService {
 
     private SkillDAO skillDao;
@@ -26,13 +28,13 @@ public class SkillServiceImpl implements SkillService {
 
     @Override
     public List<Skill> getSkills() {
-        // TODO: implement getSkills method
-        return null;
+        return skillDao.getAll();
     }
 
     @Override
+    @Transactional
     public void updateSkill(Skill skill) {
-        // TODO: implement updateSkill method
+        skillDao.update(skill);
     }
 
     @Override

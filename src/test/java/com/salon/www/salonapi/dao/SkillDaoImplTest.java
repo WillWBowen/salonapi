@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -19,6 +20,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.script.ScriptException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -43,14 +49,14 @@ public class SkillDaoImplTest {
 
 
     @Before
-    public void setUp() throws ScriptException, SQLException {
+    public void setUp() throws SQLException {
         Connection connection = jdbcTemplate.getDataSource().getConnection();
         ScriptUtils.executeSqlScript(connection, new ClassPathResource(CREATE_SKILL_T_SQL_SCRIPT));
         connection.close();
     }
 
     @After
-    public void tearDown() throws ScriptException, SQLException {
+    public void tearDown() throws SQLException {
         Connection connection = jdbcTemplate.getDataSource().getConnection();
         ScriptUtils.executeSqlScript(connection, new ClassPathResource(DROP_SKILL_T_SQL_SCRIPT));
         connection.close();
@@ -117,8 +123,7 @@ public class SkillDaoImplTest {
 
     @Test(expected = SkillUpdateFailedException.class)
     public void update_shouldThrowException_forNonExistingSkill() {
-        Skill notFound = new Skill();
-        notFound.setId(new Random().nextLong());
+        Skill notFound = new Skill(new Random().nextLong(), "name", 20);
 
         skillDao.update(notFound);
     }
@@ -170,5 +175,4 @@ public class SkillDaoImplTest {
         assertThat(result).hasFieldOrPropertyWithValue("name", "pedicure");
         assertThat(result).hasFieldOrPropertyWithValue("price", 30);
     }
-
 }

@@ -7,6 +7,7 @@ import com.salon.www.salonapi.exception.SkillUpdateFailedException;
 import com.salon.www.salonapi.mapper.SkillRowMapper;
 import com.salon.www.salonapi.model.Skill;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -34,7 +35,8 @@ public class SkillDAOImpl implements SkillDAO {
     @Override
     public List<Skill> getAll() {
         return jdbcTemplate.query(
-                "SELECT * FROM skills", new SkillRowMapper()
+                "SELECT * FROM skills",
+                new SkillRowMapper()
         );
     }
 
@@ -51,12 +53,13 @@ public class SkillDAOImpl implements SkillDAO {
     }
 
     @Override
-    public void update(Skill skill) {
-        if (jdbcTemplate.update(
-                "UPDATE skills SET name=?, price=? WHERE id=?",
-                skill.getName(),
-                skill.getPrice(),
-                skill.getId()) != 1) {
+    public void update(Skill skill) throws DataAccessException {
+        int rs = jdbcTemplate.update(
+            "UPDATE skills SET name=?, price=? WHERE id=?",
+            skill.getName(),
+            skill.getPrice(),
+            skill.getId());
+        if(rs != 1){
             throw new SkillUpdateFailedException();
         }
     }
