@@ -59,9 +59,9 @@ public class BookingDaoImplTest {
         Connection connection = jdbcTemplate.getDataSource().getConnection();
         ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_ONE_EMPLOYEE_ONE_CUSTOMER_T_SQL_SCRIPT));
         connection.close();
-        Timestamp start = new Timestamp(new GregorianCalendar(2019, 7, 30, 11, 00).getTimeInMillis());
-        Timestamp end = new Timestamp(new GregorianCalendar(2019, 7, 30, 12, 30).getTimeInMillis());
-        Booking booking = new Booking(1L, 1L, start, end);
+        Timestamp start = new Timestamp(new GregorianCalendar(2019, Calendar.AUGUST, 30, 11, 0).getTimeInMillis());
+        Timestamp end = new Timestamp(new GregorianCalendar(2019, Calendar.AUGUST, 30, 12, 30).getTimeInMillis());
+        Booking booking = new Booking(1L, 1L, start, end, null);
         bookingDao.save(booking);
 
         Optional<Booking> validBooking = bookingDao.get(1L);
@@ -91,7 +91,7 @@ public class BookingDaoImplTest {
         assertThat(validBooking.isPresent()).isEqualTo(true);
         assertThat(validBooking.get().getEmployeeId()).isEqualTo(1L);
         assertThat(validBooking.get().getCustomerId()).isEqualTo(1L);
-        assertThat(validBooking.get().getBookingTime()).isEqualTo(new Timestamp(new GregorianCalendar(2019, Calendar.JULY, 30, 11, 00).getTimeInMillis()));
+        assertThat(validBooking.get().getBookingTime()).isEqualTo(new Timestamp(new GregorianCalendar(2019, Calendar.JULY, 30, 11, 0).getTimeInMillis()));
         assertThat(validBooking.get().getEndTime()).isEqualTo(new Timestamp(new GregorianCalendar(2019, Calendar.JULY, 30, 12, 30).getTimeInMillis()));
     }
 
@@ -116,14 +116,14 @@ public class BookingDaoImplTest {
 
         List<Booking> bookings = bookingDao.getAll();
 
-        Timestamp start1 = new Timestamp(new GregorianCalendar(2019, Calendar.JULY, 30, 11, 00).getTimeInMillis());
+        Timestamp start1 = new Timestamp(new GregorianCalendar(2019, Calendar.JULY, 30, 11, 0).getTimeInMillis());
         Timestamp end1 = new Timestamp(new GregorianCalendar(2019, Calendar.JULY, 30, 12, 30).getTimeInMillis());
-        Timestamp start2 = new Timestamp(new GregorianCalendar(2019, Calendar.AUGUST, 30, 10, 00).getTimeInMillis());
-        Timestamp end2 = new Timestamp(new GregorianCalendar(2019, Calendar.AUGUST, 30, 11, 00).getTimeInMillis());
+        Timestamp start2 = new Timestamp(new GregorianCalendar(2019, Calendar.AUGUST, 30, 10, 0).getTimeInMillis());
+        Timestamp end2 = new Timestamp(new GregorianCalendar(2019, Calendar.AUGUST, 30, 11, 0).getTimeInMillis());
 
         assertThat(bookings).isNotNull().hasSize(2);
-        assertThat(bookings.contains(new Booking(1L,1L,1L, start1, end1))).isTrue();
-        assertThat(bookings.contains(new Booking(2L, 1L,1L, start2, end2))).isTrue();
+        assertThat(bookings.contains(new Booking(1L,1L,1L, start1, end1, null))).isTrue();
+        assertThat(bookings.contains(new Booking(2L, 1L,1L, start2, end2, null))).isTrue();
 
     }
 
@@ -141,9 +141,9 @@ public class BookingDaoImplTest {
         ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_ONE_BOOKING_T_SQL_SCRIPT));
         connection.close();
 
-        Timestamp start2 = new Timestamp(new GregorianCalendar(2019, Calendar.AUGUST, 30, 10, 00).getTimeInMillis());
-        Timestamp end2 = new Timestamp(new GregorianCalendar(2019, Calendar.AUGUST, 30, 11, 00).getTimeInMillis());
-        bookingDao.update(new Booking(1L, 1L,1L, start2, end2));
+        Timestamp start2 = new Timestamp(new GregorianCalendar(2019, Calendar.AUGUST, 30, 10, 0).getTimeInMillis());
+        Timestamp end2 = new Timestamp(new GregorianCalendar(2019, Calendar.AUGUST, 30, 11, 0).getTimeInMillis());
+        bookingDao.update(new Booking(1L, 1L,1L, start2, end2, null));
 
         Optional<Booking> updatedBooking = bookingDao.get(1L);
         assertThat(updatedBooking.isPresent()).isEqualTo(true);

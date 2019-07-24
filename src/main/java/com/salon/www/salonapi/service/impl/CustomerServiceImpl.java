@@ -1,12 +1,15 @@
 package com.salon.www.salonapi.service.impl;
 
+import com.salon.www.salonapi.model.Booking;
 import com.salon.www.salonapi.model.Customer;
 import com.salon.www.salonapi.dao.itf.CustomerDAO;
+import com.salon.www.salonapi.service.itf.BookingService;
 import com.salon.www.salonapi.service.itf.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @Service("customerService")
@@ -14,6 +17,7 @@ import java.util.List;
 public class CustomerServiceImpl implements CustomerService {
 
     private CustomerDAO customerDao;
+    private BookingService bookingService;
 
     @Autowired
     public CustomerServiceImpl(CustomerDAO customerDao) {
@@ -27,5 +31,16 @@ public class CustomerServiceImpl implements CustomerService {
 
     public Customer getCustomer(Long customerId) {
         return customerDao.get(customerId).orElse(null);
+    }
+
+    public List<Booking> getCustomerBookingsForDate(Long customerId, Timestamp date) {
+        return customerDao.getBookingsForDate(customerId, date);
+    }
+
+    @Override
+    public Boolean customerIsAvailable(long customerId, Timestamp bookingTime, Timestamp endTime) {
+        // Check no other bookings overlap this booking
+        List<Booking> bookings = getCustomerBookingsForDate(customerId, bookingTime);
+        return !bookingService.bookingTimeHasConflict(bookings, bookingTime, endTime);
     }
 }

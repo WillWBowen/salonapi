@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +31,19 @@ public class BookingDAOImpl implements BookingDAO {
                         sql,
                         rs -> rs.next() ? Optional.ofNullable(new BookingRowMapper().mapRow(rs, 1)) : Optional.empty(),
                         id
+        );
+    }
+
+    @Override
+    public List<Booking> getForRange(Timestamp start, Timestamp end) {
+        String sql = "SELECT * FROM bookings WHERE booking_time > ? AND booking_time < ?";
+        return jdbcTemplate.query(
+                sql,
+                new Object[]{
+                        start,
+                        end
+                },
+                new BookingRowMapper()
         );
     }
 

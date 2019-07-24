@@ -4,11 +4,15 @@ import com.salon.www.salonapi.dao.itf.CustomerDAO;
 import com.salon.www.salonapi.exception.CustomerCreationFailedException;
 import com.salon.www.salonapi.exception.CustomerDeletionFailedException;
 import com.salon.www.salonapi.exception.CustomerUpdateFailedException;
+import com.salon.www.salonapi.mapper.BookingRowMapper;
 import com.salon.www.salonapi.mapper.CustomerRowMapper;
+import com.salon.www.salonapi.model.Booking;
 import com.salon.www.salonapi.model.Customer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,8 +30,6 @@ public class CustomerDAOImpl implements CustomerDAO {
         return jdbcTemplate.query(
                 "SELECT * FROM customers", new CustomerRowMapper()
         );
-
-
     }
 
     public Optional<Customer> get(long customerId) {
@@ -45,6 +47,19 @@ public class CustomerDAOImpl implements CustomerDAO {
                 sql,
                 rs -> rs.next() ? Optional.ofNullable(new CustomerRowMapper().mapRow(rs, 1)) : Optional.empty(),
                 email
+        );
+    }
+
+    @Override
+    public List<Booking> getBookingsForDate(Long customerId, Timestamp date) {
+        String sql = "SELECT * FROM bookings WHERE customers_id=? AND DATE(booking_time) = DATE(?)";
+        return jdbcTemplate.query(
+                sql,
+                new Object[] {
+                        customerId,
+                        date
+                },
+                new BookingRowMapper()
         );
     }
 
