@@ -33,7 +33,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @WithMockUser(roles = "USER")
-//@ContextConfiguration(classes = {WebConfig.class})
 public class BookingControllerTest {
 
     private MockMvc mockMvc;
@@ -51,7 +50,6 @@ public class BookingControllerTest {
     private static final Timestamp END_1 = new Timestamp(new GregorianCalendar(2019, Calendar.AUGUST, 30, 12, 0).getTimeInMillis());
     private static final Timestamp START_2 = new Timestamp(new GregorianCalendar(2019, Calendar.SEPTEMBER, 30, 9, 30).getTimeInMillis());
     private static final Timestamp END_2 = new Timestamp(new GregorianCalendar(2019, Calendar.SEPTEMBER, 30, 11, 15).getTimeInMillis());
-    private static final Timestamp END_3 = new Timestamp(new GregorianCalendar().getTimeInMillis());
 
     @Before
     @SneakyThrows

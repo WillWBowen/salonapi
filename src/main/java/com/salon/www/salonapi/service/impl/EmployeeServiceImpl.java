@@ -9,6 +9,10 @@ import com.salon.www.salonapi.model.EmployeeShift;
 import com.salon.www.salonapi.model.Skill;
 import com.salon.www.salonapi.service.itf.BookingService;
 import com.salon.www.salonapi.service.itf.EmployeeService;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +20,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
 
+@Log4j2
 @Service("employeeService")
 @Transactional
 public class EmployeeServiceImpl implements EmployeeService {
@@ -24,8 +29,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     private SkillDAO skillDAO;
     private BookingService bookingService;
 
-    public EmployeeServiceImpl(EmployeeDAO employeeDAO) {
+    @Autowired
+    public EmployeeServiceImpl(EmployeeDAO employeeDAO, SkillDAO skillDAO, BookingService bookingService) {
         this.employeeDAO = employeeDAO;
+        this.skillDAO = skillDAO;
+        this.bookingService = bookingService;
     }
 
     public List<Employee> getEmployees() {
@@ -72,6 +80,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         // Check no other bookings overlap this booking
         List<Booking> bookings = getEmployeeBookingsForDate(employeeId, bookingTime);
         return !bookingService.bookingTimeHasConflict(bookings, bookingTime, endTime);
+
     }
 
     @Override
@@ -83,6 +92,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Boolean employeeHasSkills(long employeeId, List<Skill> skills) {
 
         List<Skill> employeeSkills = getEmployeeSkills(employeeId);
+
+        log.info(skills);
+        log.info(employeeSkills);
         return employeeSkills.containsAll(skills);
     }
 }

@@ -1,5 +1,6 @@
 package com.salon.www.salonapi.service.itf;
 
+import com.salon.www.salonapi.exception.CustomerNotFoundException;
 import com.salon.www.salonapi.model.Customer;
 
 import java.sql.Timestamp;
@@ -10,4 +11,8 @@ public interface CustomerService {
     Customer getCustomer(Long customerId);
 
     Boolean customerIsAvailable(long customerId, Timestamp bookingTime, Timestamp endTime);
+
+    void updateCustomer(Customer customer);
+
+    void createCustomer(Customer customer);
 }

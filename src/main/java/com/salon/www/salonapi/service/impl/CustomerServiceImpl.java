@@ -1,5 +1,6 @@
 package com.salon.www.salonapi.service.impl;
 
+import com.salon.www.salonapi.exception.CustomerNotFoundException;
 import com.salon.www.salonapi.model.Booking;
 import com.salon.www.salonapi.model.Customer;
 import com.salon.www.salonapi.dao.itf.CustomerDAO;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 
 @Service("customerService")
 @Transactional
@@ -42,5 +44,18 @@ public class CustomerServiceImpl implements CustomerService {
         // Check no other bookings overlap this booking
         List<Booking> bookings = getCustomerBookingsForDate(customerId, bookingTime);
         return !bookingService.bookingTimeHasConflict(bookings, bookingTime, endTime);
+    }
+
+    @Override
+    public void updateCustomer(Customer customer) {
+        //verify object exists
+        Optional<Customer> oldCustomer = customerDao.get(customer.getId());
+        oldCustomer.orElseThrow(CustomerNotFoundException::new);
+        customerDao.update(customer);
+    }
+
+    @Override
+    public void createCustomer(Customer customer) {
+        customerDao.save(customer);
     }
 }
