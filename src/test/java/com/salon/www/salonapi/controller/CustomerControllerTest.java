@@ -1,5 +1,7 @@
 package com.salon.www.salonapi.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.salon.www.salonapi.model.Customer;
 import com.salon.www.salonapi.security.JwtTokenUtil;
 import com.salon.www.salonapi.service.itf.CustomerService;
@@ -12,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,9 +25,11 @@ import java.util.Arrays;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -37,6 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class CustomerControllerTest {
 
     private MockMvc mockMvc;
+    private ObjectMapper mapper;
 
     @MockBean
     private JwtTokenUtil jwtTokenUtil;
@@ -55,7 +59,8 @@ public class CustomerControllerTest {
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
-
+        mapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule());
     }
 
     @Test
@@ -109,5 +114,70 @@ public class CustomerControllerTest {
         mockMvc.perform(get("/customers/10"))
                 .andExpect(status().isNoContent());
         then(customerService).should(times(1)).getCustomer(10L);
+    }
+
+    @Test
+    public void createCustomer_shouldReturnCreated() throws Exception {
+        Customer customer = new Customer(1L, "first", "name");
+        doNothing().when(customerService).createCustomer(customer);
+        String json = mapper.writeValueAsString(customer);
+        mockMvc.perform(post("/customers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isCreated());
+        then(customerService).should(times(1)).createCustomer(customer);
+    }
+
+    @Test
+    public void createCustomer_shouldReturnBadRequest_withBadInput() throws Exception {
+        Customer customer = new Customer();
+        String json = mapper.writeValueAsString(customer);
+        mockMvc.perform(post("/customers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isBadRequest());
+        then(customerService).should(times(0)).createCustomer(customer);
+    }
+
+    @Test
+    public void updateCustomer_shouldReturnNoContent() throws Exception {
+        Customer customer = new Customer(10L, 55L, "user", "name");
+        given(customerService.getCustomer(anyLong())).willReturn(customer);
+        doNothing().when(customerService).updateCustomer(customer);
+        String json = mapper.writeValueAsString(customer);
+        mockMvc.perform(put("/customers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isNoContent());
+        then(customerService).should(times(1)).updateCustomer(customer);
+    }
+
+    @Test
+    public void updateCustomer_shouldReturnBadRequest_withMissingId() throws Exception {
+        Customer customer = new Customer(55L, "user", "name");
+        given(customerService.getCustomer(anyLong())).willReturn(customer);
+        doNothing().when(customerService).updateCustomer(customer);
+        String json = mapper.writeValueAsString(customer);
+        mockMvc.perform(put("/customers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isBadRequest());
+        then(customerService).should(times(0)).updateCustomer(customer);
+    }
+
+    @Test
+    public void updateCustomer_shouldReturnBadRequest_withBadInput() throws Exception {
+        Customer customer = new Customer();
+        String json = mapper.writeValueAsString(customer);
+        mockMvc.perform(put("/customers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isBadRequest());
+        then(customerService).should(times(0)).updateCustomer(customer);
     }
 }

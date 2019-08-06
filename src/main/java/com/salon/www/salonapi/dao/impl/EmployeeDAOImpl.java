@@ -101,7 +101,7 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 
     @Override
     public Optional<EmployeeShift> getShiftForDay(Long employeeId, int day) {
-        String sql = "SELECT * FROM employee_shifts WHERE id=? AND day=?";
+        String sql = "SELECT * FROM employee_shifts WHERE employees_id=? AND day=?";
         return jdbcTemplate.query(
                 sql,
                 rs -> rs.next() ? Optional.ofNullable(new EmployeeShiftRowMapper().mapRow(rs, 1)) : Optional.empty(),

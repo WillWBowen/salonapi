@@ -127,6 +127,31 @@ public class BookingDaoImplTest {
 
     }
 
+    @Test
+    public void getAllForRange_shouldYieldEmptyList_forEmptyDatabase() {
+        Timestamp start1 = new Timestamp(new GregorianCalendar(2019, Calendar.JULY, 30, 11, 0).getTimeInMillis());
+        Timestamp end1 = new Timestamp(new GregorianCalendar(2019, Calendar.JULY, 30, 12, 30).getTimeInMillis());
+        List<Booking> noBookings = bookingDao.getForRange(start1, end1);
+
+        assertThat(noBookings).isNullOrEmpty();
+    }
+
+    @Test
+    public void getAllForRange_shouldYieldListOfBookings_forNonemptyDatabase() throws SQLException{
+        Timestamp start1 = new Timestamp(new GregorianCalendar(2019, Calendar.AUGUST, 29, 11, 0).getTimeInMillis());
+        Timestamp end1 = new Timestamp(new GregorianCalendar(2019, Calendar.AUGUST, 31, 12, 30).getTimeInMillis());
+        Timestamp start2 = new Timestamp(new GregorianCalendar(2019, Calendar.AUGUST, 30, 10, 0).getTimeInMillis());
+        Timestamp end2 = new Timestamp(new GregorianCalendar(2019, Calendar.AUGUST, 30, 11, 0).getTimeInMillis());
+        Connection connection = jdbcTemplate.getDataSource().getConnection();
+        ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_TWO_BOOKINGS_T_SQL_SCRIPT));
+
+        List<Booking> bookings = bookingDao.getForRange(start1, end1);
+
+        assertThat(bookings).isNotNull().hasSize(1);
+        assertThat(bookings.contains(new Booking(2L, 1L,1L, start2, end2, null))).isTrue();
+
+    }
+
     @Test(expected = BookingUpdateFailedException.class)
     public void update_shouldThrowException_forNonExistingBooking() {
         Booking notFound = new Booking();

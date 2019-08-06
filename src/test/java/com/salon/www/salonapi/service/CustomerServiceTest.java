@@ -3,18 +3,21 @@ package com.salon.www.salonapi.service;
 import com.salon.www.salonapi.dao.itf.CustomerDAO;
 import com.salon.www.salonapi.exception.CustomerCreationFailedException;
 import com.salon.www.salonapi.exception.CustomerNotFoundException;
+import com.salon.www.salonapi.model.Booking;
 import com.salon.www.salonapi.model.Customer;
 import com.salon.www.salonapi.service.impl.CustomerServiceImpl;
+import com.salon.www.salonapi.service.itf.BookingService;
 import com.salon.www.salonapi.service.itf.CustomerService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.sql.Timestamp;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,11 +32,23 @@ public class CustomerServiceTest {
     private CustomerService customerService;
 
     @Mock
+    private BookingService bookingService;
+    @Mock
     private CustomerDAO customerDAO;
+
+    @InjectMocks
+    @Spy
+    private CustomerServiceImpl spyService;
+
+    private static final Timestamp START_1 = new Timestamp(new GregorianCalendar(2019, Calendar.AUGUST, 30, 11, 0).getTimeInMillis());
+    private static final Timestamp END_1 = new Timestamp(new GregorianCalendar(2019, Calendar.AUGUST, 30, 12, 0).getTimeInMillis());
+    private static final Timestamp START_2 = new Timestamp(new GregorianCalendar(2019, Calendar.SEPTEMBER, 30, 9, 30).getTimeInMillis());
+    private static final Timestamp END_2 = new Timestamp(new GregorianCalendar(2019, Calendar.SEPTEMBER, 30, 11, 15).getTimeInMillis());
+
 
     @Before
     public void setUp() {
-        this.customerService = new CustomerServiceImpl(customerDAO);
+        this.customerService = new CustomerServiceImpl(customerDAO, bookingService);
     }
 
     @Test
@@ -126,5 +141,59 @@ public class CustomerServiceTest {
         customerService.updateCustomer(customer);
         then(customerDAO).should(times(1)).get(1L);
         then(customerDAO).should(times(0)).update(customer);
+    }
+
+    @Test
+    public void getCustomerBookingsForDate_should_returnNull_ifNoBookingsInDatabase() {
+        given(customerDAO.getBookingsForDate(anyLong(), any())).willReturn(null);
+
+        Timestamp time = new Timestamp(new GregorianCalendar(2019, 7, 3).getTimeInMillis());
+        List<Booking> bookings = customerService.getCustomerBookingsForDate(13L, time);
+        then(customerDAO).should(times(1)).getBookingsForDate(13L, time);
+        assertThat(bookings).isNullOrEmpty();
+    }
+
+    @Test
+    public void getCustomerBookingsForDate_shouldReturnListOfBookings_forNonEmptyDatabase() {
+        Booking first = new Booking(4L,1L, 4L, START_1, END_1, null);
+        Booking second = new Booking(2L, 35L, 32L, START_2, END_2, null);
+
+        given(customerDAO.getBookingsForDate(anyLong(), any())).willReturn(Arrays.asList(first, second));
+
+        List<Booking> bookings = customerService.getCustomerBookingsForDate(14L, START_1);
+
+        then(customerDAO).should(times(1)).getBookingsForDate(14L, START_1);
+        assertThat(bookings).contains(first);
+        assertThat(bookings).contains(second);
+    }
+
+    @Test
+    public void customerIsAvailable_returnsFalseForOverLappingBookings() {
+        Booking first = new Booking(4L,1L, 4L, START_1, END_1, null);
+        Booking second = new Booking(2L, 35L, 32L, START_2, END_2, null);
+        List<Booking> bookings = Arrays.asList(first, second);
+        doReturn(bookings).when(spyService).getCustomerBookingsForDate(anyLong(), any());
+        doReturn(true).when(bookingService).bookingTimeHasConflict(any(), any(), any());
+
+        Boolean isAvailable = spyService.customerIsAvailable(12L, START_1, END_1);
+
+        then(spyService).should(times(1)).getCustomerBookingsForDate(12L, START_1);
+        then(bookingService).should(times(1)).bookingTimeHasConflict(bookings, START_1, END_1);
+        assertThat(isAvailable).isFalse();
+    }
+
+    @Test
+    public void customerIsAvailable_returnsTrueForValidBookings() {
+        Booking first = new Booking(4L,1L, 4L, START_1, END_1, null);
+        Booking second = new Booking(2L, 35L, 32L, START_2, END_2, null);
+        List<Booking> bookings = Arrays.asList(first, second);
+        doReturn(bookings).when(spyService).getCustomerBookingsForDate(anyLong(), any());
+        doReturn(false).when(bookingService).bookingTimeHasConflict(any(), any(), any());
+
+        Boolean isAvailable = spyService.customerIsAvailable(12L, START_1, END_1);
+
+        then(spyService).should(times(1)).getCustomerBookingsForDate(12L, START_1);
+        then(bookingService).should(times(1)).bookingTimeHasConflict(bookings, START_1, END_1);
+        assertThat(isAvailable).isTrue();
     }
 }

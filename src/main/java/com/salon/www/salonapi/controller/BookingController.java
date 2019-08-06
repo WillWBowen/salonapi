@@ -43,6 +43,12 @@ public class BookingController {
 
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteBooking(@PathVariable("id") Long bookingId) {
+        bookingService.deleteBooking(bookingId);
+        return ResponseEntity.noContent().build();
+    }
+
     private void validate(Booking booking) {
         Objects.requireNonNull(customerService.getCustomer(booking.getCustomerId()));
         Objects.requireNonNull(employeeService.getEmployee(booking.getEmployeeId()));

@@ -1,9 +1,11 @@
 CREATE TABLE IF NOT EXISTS `users` (
-   `id` BIGINT NOT NULL AUTO_INCREMENT,
-   `username` VARCHAR(45) NOT NULL,
-   `password` VARCHAR(255) NOT NULL,
-   `token` VARCHAR(255) NULL,
-   PRIMARY KEY (`id`))
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `username` VARCHAR(45) NOT NULL,
+    `password` VARCHAR(255) NOT NULL,
+    `email` VARCHAR(255) NULL,
+    `enabled` BIT NOT NULL DEFAULT 0,
+    `lastPasswordResetDate` DATE NULL,
+    PRIMARY KEY (`id`))
     ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `customers` (
@@ -36,6 +38,40 @@ CREATE TABLE IF NOT EXISTS `employees` (
            REFERENCES `users` (`id`)
            ON DELETE NO ACTION
            ON UPDATE NO ACTION)
+    ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `employee_shifts` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `employees_id` BIGINT NOT NULL,
+    `day` TINYINT NOT NULL,
+    `start_time` TIME NOT NULL,
+    `end_time` TIME NOT NULL,
+    PRIMARY KEY (`id`, `employees_id`),
+    INDEX `fk_employee_shifts_employees1_idx` (`employees_id` ASC),
+    CONSTRAINT `fk_employee_shifts_employees1`
+     FOREIGN KEY (`employees_id`)
+         REFERENCES `employees` (`id`)
+         ON DELETE NO ACTION
+         ON UPDATE NO ACTION)
+    ENGINE = InnoDB;
+
+CREATE TABLE skills (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(45) NOT NULL,
+    `price` INT NOT NULL,
+    PRIMARY KEY (`id`))
+    ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS employees_x_skills (
+    `employees_id` INT NOT NULL,
+    `skills_id` INT NOT NULL,
+    PRIMARY KEY (`employees_id`, `skills_id`),
+    INDEX `fk_employees_has_skills_skills1_idx` (`skills_id` ASC),
+    CONSTRAINT `fk_employees_has_skills_skills1`
+      FOREIGN KEY (`skills_id`)
+          REFERENCES skills (`id`)
+          ON DELETE NO ACTION
+          ON UPDATE NO ACTION)
     ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `bookings` (

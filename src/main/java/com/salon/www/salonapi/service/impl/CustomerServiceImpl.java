@@ -22,8 +22,9 @@ public class CustomerServiceImpl implements CustomerService {
     private BookingService bookingService;
 
     @Autowired
-    public CustomerServiceImpl(CustomerDAO customerDao) {
+    public CustomerServiceImpl(CustomerDAO customerDao, BookingService bookingService) {
         this.customerDao = customerDao;
+        this.bookingService = bookingService;
     }
 
     @Override

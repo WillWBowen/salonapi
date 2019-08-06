@@ -14,4 +14,6 @@ public interface BookingService {
     void createBooking(Booking booking);
 
     Boolean bookingTimeHasConflict(List<Booking> bookings, Timestamp start, Timestamp end);
+
+    void deleteBooking(Long bookingId);
 }

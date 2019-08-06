@@ -1,15 +1,18 @@
 package com.salon.www.salonapi.service.impl;
 
 import com.salon.www.salonapi.dao.itf.BookingDAO;
+import com.salon.www.salonapi.exception.BookingNotFoundException;
 import com.salon.www.salonapi.model.Booking;
 import com.salon.www.salonapi.service.itf.BookingService;
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.List;
 
+@Log4j2
 @Transactional
 @Service("bookingService")
 @AllArgsConstructor
@@ -37,16 +40,14 @@ public class BookingServiceImpl implements BookingService {
 
     public Boolean bookingTimeHasConflict(List<Booking> bookings, Timestamp start, Timestamp end) {
         for(Booking booking : bookings) {
-            // booking starts in the middle of another booking
-            if(start.after(booking.getBookingTime()) && !start.after(booking.getEndTime())) return true;
-            // booking ends in the middle of another booking
-            if(end.before(booking.getEndTime()) && !end.before(booking.getBookingTime())) return true;
-            // booking starts at same time as another booking
-            if(start.equals(booking.getBookingTime())) return true;
-            // booking ends at the same time as another booking
-            if(end.equals(booking.getEndTime())) return true;
+            if(start.before(booking.getEndTime()) && end.after(booking.getBookingTime())) return true;
         }
-
         return false;
+    }
+
+    @Override
+    public void deleteBooking(Long bookingId) {
+        Booking booking = bookingDAO.get(bookingId).orElseThrow(BookingNotFoundException::new);
+        bookingDAO.delete(booking);
     }
 }

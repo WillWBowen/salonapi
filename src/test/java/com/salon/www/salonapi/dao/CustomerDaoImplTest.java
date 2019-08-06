@@ -4,6 +4,7 @@ import com.salon.www.salonapi.dao.itf.CustomerDAO;
 import com.salon.www.salonapi.exception.CustomerCreationFailedException;
 import com.salon.www.salonapi.exception.CustomerDeletionFailedException;
 import com.salon.www.salonapi.exception.CustomerUpdateFailedException;
+import com.salon.www.salonapi.model.Booking;
 import com.salon.www.salonapi.model.Customer;
 import org.junit.After;
 import org.junit.Before;
@@ -21,19 +22,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.sql.Timestamp;
+import java.util.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class CustomerDaoImplTest {
 
-    private static final String CREATE_CUSTOMER_T_SQL_SCRIPT = "scripts/create/customers_t.sql";
-    private static final String DROP_CUSTOMER_T_SQL_SCRIPT = "scripts/drop/customers_t.sql";
+    private static final String CREATE_CUSTOMER_T_SQL_SCRIPT = "scripts/create/bookings_t.sql";
+    private static final String DROP_CUSTOMER_T_SQL_SCRIPT = "scripts/drop/bookings_t.sql";
     private static final String POPULATE_ONE_USER_T_SQL_SCRIPT = "scripts/populate/one_user_t.sql";
     private static final String POPULATE_ONE_CUSTOMER_T_SQL_SCRIPT = "scripts/populate/one_customer_t.sql";
     private static final String POPULATE_TWO_CUSTOMERS_T_SQL_SCRIPT = "scripts/populate/two_customers_t.sql";
+    private static final String POPULATE_TWO_BOOKINGS_T_SQL_SCRIPT = "scripts/populate/two_bookings_t.sql";
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -140,6 +141,30 @@ public class CustomerDaoImplTest {
         assertThat(customers).isNotNull().hasSize(2);
         assertThat(customers.contains(new Customer(1L, 1L, "User", "Name"))).isTrue();
         assertThat(customers.contains(new Customer(2L, 2L, "Second", "User"))).isTrue();
+
+    }
+
+    @Test
+    public void getBookingsForDate_shouldYieldEmptyList_forEmptyDatabase() {
+        Timestamp start1 = new Timestamp(new GregorianCalendar(2019, Calendar.JULY, 30, 11, 0).getTimeInMillis());
+        List<Booking> noBookings = customerDao.getBookingsForDate(1L, start1);
+
+        assertThat(noBookings).isNullOrEmpty();
+    }
+
+    @Test
+    public void getBookingsForDate_shouldYieldListOfBookings_forNonemptyDatabase() throws SQLException{
+        Timestamp start1 = new Timestamp(new GregorianCalendar(2019, Calendar.JULY, 30, 11, 0).getTimeInMillis());
+        Timestamp end1 = new Timestamp(new GregorianCalendar(2019, Calendar.JULY, 30, 12, 30).getTimeInMillis());
+
+        Connection connection = jdbcTemplate.getDataSource().getConnection();
+        ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_TWO_BOOKINGS_T_SQL_SCRIPT));
+
+        List<Booking> bookings = customerDao.getBookingsForDate(1L, start1);
+
+
+        assertThat(bookings).isNotNull().hasSize(1);
+        assertThat(bookings.contains(new Booking(1L,1L,1L, start1, end1, null))).isTrue();
 
     }
 

@@ -46,6 +46,8 @@ public class AdminControllerTest {
 
     private MockMvc mockMvc;
 
+    private ObjectMapper mapper;
+
     @MockBean
     private JwtTokenUtil jwtTokenUtil;
 
@@ -58,6 +60,9 @@ public class AdminControllerTest {
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
+
+        mapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule());
     }
 
     @MockBean
@@ -230,7 +235,6 @@ public class AdminControllerTest {
     public void createEmployee_withAdminRole_shouldReturnCreated() throws Exception {
         Employee employee = new Employee(1L, "first", "name");
         doNothing().when(employeeService).createEmployee(employee);
-        ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(employee);
         mockMvc.perform(post("/admin/employees")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -244,7 +248,6 @@ public class AdminControllerTest {
     @WithMockUser(roles = "ADMIN")
     public void createEmployee_withAdminRole_shouldReturnBadRequest_withBadInput() throws Exception {
         Employee employee = new Employee();
-        ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(employee);
         mockMvc.perform(post("/admin/employees")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -268,9 +271,8 @@ public class AdminControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void updateEmployee_withAdminRole_shouldReturnNoContent() throws Exception {
-        Employee employee = new Employee(1L, "first", "name");
+        Employee employee = new Employee(1L,1L, "first", "name");
         doNothing().when(employeeService).updateEmployee(employee);
-        ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(employee);
         mockMvc.perform(put("/admin/employees")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -282,9 +284,22 @@ public class AdminControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
+    public void updateEmployee_withAdminRole_shouldReturnBadRequest_withMissingId() throws Exception {
+        Employee employee = new Employee(1L, "first", "name");
+        doNothing().when(employeeService).updateEmployee(employee);
+        String json = mapper.writeValueAsString(employee);
+        mockMvc.perform(put("/admin/employees")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isBadRequest());
+        then(employeeService).should(times(0)).updateEmployee(employee);
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
     public void updateEmployee_withAdminRole_shouldReturnBadRequest_withBadInput() throws Exception {
         Employee employee = new Employee();
-        ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(employee);
         mockMvc.perform(put("/admin/employees")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -309,7 +324,6 @@ public class AdminControllerTest {
     @WithMockUser(roles = "ADMIN")
     public void createSkill_withAdminRole_shouldReturnCreated() throws Exception {
         Skill skill = new Skill("Manicure", 20);
-        ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(skill);
         doNothing().when(skillService).createSkill(skill);
         mockMvc.perform(post("/admin/skills")
@@ -324,7 +338,6 @@ public class AdminControllerTest {
     @WithMockUser(roles = "ADMIN")
     public void createSkill_withAdminRole_shouldReturnBadRequest_withBadInput() throws Exception {
         Skill skill = new Skill();
-        ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(skill);
         mockMvc.perform(post("/admin/skills")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -422,7 +435,6 @@ public class AdminControllerTest {
     public void updateSkill_withAdminRole_shouldReturnNoContent() throws Exception {
         Skill skill = new Skill(2L, "pedicure", 35);
         doNothing().when(skillService).updateSkill(skill);
-        ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(skill);
         mockMvc.perform(put("/admin/skills")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -434,9 +446,22 @@ public class AdminControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
+    public void updateSkill_withAdminRole_shouldReturnBadRequest_forMissingId() throws Exception {
+        Skill skill = new Skill("pedicure", 35);
+        doNothing().when(skillService).updateSkill(skill);
+        String json = mapper.writeValueAsString(skill);
+        mockMvc.perform(put("/admin/skills")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isBadRequest());
+        then(skillService).should(times(0)).updateSkill(skill);
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
     public void updateSkill_withAdminRole_shouldReturnBadRequest_withBadInput() throws Exception {
         Skill skill = new Skill();
-        ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(skill);
         mockMvc.perform(put("/admin/skills")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -461,8 +486,6 @@ public class AdminControllerTest {
     @WithMockUser(roles = "ADMIN")
     public void createShift_withAdminRole_shouldReturnCreated() throws Exception {
         EmployeeShift shift = new EmployeeShift(1L, Calendar.THURSDAY, LocalTime.of(9, 0), LocalTime.of(17,0));
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
         String json = mapper.writeValueAsString(shift);
 
         log.info(json);
@@ -481,8 +504,21 @@ public class AdminControllerTest {
     @WithMockUser(roles = "ADMIN")
     public void createShift_withAdminRole_shouldReturnBadRequest_withBadInput() throws Exception {
         EmployeeShift shift = new EmployeeShift();
-        ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(shift);
+        mockMvc.perform(post("/admin/shifts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isBadRequest());
+        then(shiftService).should(times(0)).createShift(shift);
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void createShift_withAdminRole_shouldReturnBadRequest_withBadEmployeeAndBadShift() throws Exception {
+        EmployeeShift shift = new EmployeeShift(15L, Calendar.MONDAY, LocalTime.of(9, 0), LocalTime.of(5, 0));
+        String json = mapper.writeValueAsString(shift);
+        given(employeeService.getEmployee(anyLong())).willReturn(null);
         mockMvc.perform(post("/admin/shifts")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -573,11 +609,9 @@ public class AdminControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void updateShift_withAdminRole_shouldReturnNoContent() throws Exception {
-        EmployeeShift shift = new EmployeeShift(1L, Calendar.MONDAY, LocalTime.of(9, 0), LocalTime.of(17, 0));
+        EmployeeShift shift = new EmployeeShift(12L, 1L, Calendar.MONDAY, LocalTime.of(9, 0), LocalTime.of(17, 0));
         doNothing().when(shiftService).updateShift(shift);
         given(employeeService.getEmployee(anyLong())).willReturn(new Employee());
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
         String json = mapper.writeValueAsString(shift);
         mockMvc.perform(put("/admin/shifts")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -586,12 +620,25 @@ public class AdminControllerTest {
                 .andExpect(status().isNoContent());
         then(shiftService).should(times(1)).updateShift(shift);
     }
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void updateShift_withAdminRole_shouldReturnBadRequest_withMissingId() throws Exception {
+        EmployeeShift shift = new EmployeeShift(1L, Calendar.MONDAY, LocalTime.of(9, 0), LocalTime.of(17, 0));
+        doNothing().when(shiftService).updateShift(shift);
+        given(employeeService.getEmployee(anyLong())).willReturn(new Employee());
+        String json = mapper.writeValueAsString(shift);
+        mockMvc.perform(put("/admin/shifts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isBadRequest());
+        then(shiftService).should(times(0)).updateShift(shift);
+    }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     public void updateShift_withAdminRole_shouldReturnBadRequest_withBadInput() throws Exception {
         EmployeeShift shift = new EmployeeShift();
-        ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(shift);
         mockMvc.perform(put("/admin/shifts")
                 .contentType(MediaType.APPLICATION_JSON)

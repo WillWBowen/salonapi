@@ -4,7 +4,9 @@ import com.salon.www.salonapi.dao.itf.EmployeeShiftDAO;
 import com.salon.www.salonapi.exception.EmployeeShiftCreationFailedException;
 import com.salon.www.salonapi.exception.EmployeeShiftDeletionFailedException;
 import com.salon.www.salonapi.exception.EmployeeShiftUpdateFailedException;
+import com.salon.www.salonapi.model.Employee;
 import com.salon.www.salonapi.model.EmployeeShift;
+import lombok.extern.log4j.Log4j2;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+@Log4j2
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class EmployeeShiftDaoImplTest {
@@ -34,7 +37,7 @@ public class EmployeeShiftDaoImplTest {
     private static final String DROP_EMPLOYEE_SHIFT_T_SQL_SCRIPT = "scripts/drop/shifts_t.sql";
     private static final String POPULATE_ONE_EMPLOYEE_T_SQL_SCRIPT = "scripts/populate/one_employee_t.sql";
     private static final String POPULATE_ONE_EMPLOYEE_SHIFT_T_SQL_SCRIPT = "scripts/populate/one_shift_t.sql";
-    private static final String POPULATE_TWO_EMPLOYEE_SHIFTS_T_SQL_SCRIPT = "scripts/populate/two_shifts_t.sql";
+    private static final String POPULATE_THREE_EMPLOYEE_SHIFTS_T_SQL_SCRIPT = "scripts/populate/three_shifts_t.sql";
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -113,14 +116,63 @@ public class EmployeeShiftDaoImplTest {
     @Test
     public void getAll_shouldYieldListOfEmployeeShifts_forNonemptyDatabase() throws SQLException{
         Connection connection = jdbcTemplate.getDataSource().getConnection();
-        ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_TWO_EMPLOYEE_SHIFTS_T_SQL_SCRIPT));
+        ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_THREE_EMPLOYEE_SHIFTS_T_SQL_SCRIPT));
+        connection.close();
 
         List<EmployeeShift> shifts = shiftDao.getAll();
 
+        assertThat(shifts).isNotNull().hasSize(3);
+        assertThat(shifts.contains(new EmployeeShift(1L,1L, 2, LocalTime.of(9, 0), LocalTime.of(17,30)))).isTrue();
+        assertThat(shifts.contains(new EmployeeShift(2L,2L, 3, LocalTime.of(10, 0), LocalTime.of(19, 30)))).isTrue();
+        assertThat(shifts.contains(new EmployeeShift(3L,1L, 3, LocalTime.of(10, 0), LocalTime.of(19, 30)))).isTrue();
+
+    }
+
+    @Test
+    public void getAllForEmployee_shouldYieldEmptyList_forEmptyDatabase() {
+        Employee employee = new Employee(1L, 1L, "first", "last");
+        List<EmployeeShift> noEmployeeShifts = shiftDao.getAllForEmployee(employee);
+
+        assertThat(noEmployeeShifts).isNullOrEmpty();
+    }
+
+    @Test
+    public void getAllForEmployee_shouldYieldListOfEmployeeShifts_forNonemptyDatabase() throws SQLException{
+        Connection connection = jdbcTemplate.getDataSource().getConnection();
+        ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_THREE_EMPLOYEE_SHIFTS_T_SQL_SCRIPT));
+        connection.close();
+
+        Employee employee = new Employee(1L, 1L, "first", "last");
+        List<EmployeeShift> shifts = shiftDao.getAllForEmployee(employee);
+
         assertThat(shifts).isNotNull().hasSize(2);
         assertThat(shifts.contains(new EmployeeShift(1L,1L, 2, LocalTime.of(9, 0), LocalTime.of(17,30)))).isTrue();
-        assertThat(shifts.contains(new EmployeeShift(2L,1L, 3, LocalTime.of(10, 0), LocalTime.of(19, 30)))).isTrue();
+        assertThat(shifts.contains(new EmployeeShift(3L,1L, 3, LocalTime.of(10, 0), LocalTime.of(19, 30)))).isTrue();
+    }
 
+    @Test
+    public void getForEmployeeForDay_shouldYieldEmptyList_forEmptyDatabase() {
+        Employee employee = new Employee(1L, 1L, "first", "last");
+        Optional<EmployeeShift> shift = shiftDao.getForEmployeeForDay(employee, 3);
+
+        log.info(shift);
+        assertThat(shift.isPresent()).isFalse();
+    }
+
+    @Test
+    public void getForEmployeeForDay_shouldYieldListOfEmployeeShifts_forNonemptyDatabase() throws SQLException{
+        Connection connection = jdbcTemplate.getDataSource().getConnection();
+        ScriptUtils.executeSqlScript(connection, new ClassPathResource(POPULATE_THREE_EMPLOYEE_SHIFTS_T_SQL_SCRIPT));
+        connection.close();
+
+        Employee employee = new Employee(1L, 1L, "first", "last");
+        Optional<EmployeeShift> shift = shiftDao.getForEmployeeForDay(employee, 3);
+
+        assertThat(shift.isPresent()).isTrue();
+        assertThat(shift.get().getEmployeeId()).isEqualTo(1L);
+        assertThat(shift.get().getDay()).isEqualTo(3);
+        assertThat(shift.get().getStartTime()).isEqualTo(LocalTime.of(10, 0));
+        assertThat(shift.get().getEndTime()).isEqualTo(LocalTime.of(19, 30));
     }
 
     @Test(expected = EmployeeShiftUpdateFailedException.class)

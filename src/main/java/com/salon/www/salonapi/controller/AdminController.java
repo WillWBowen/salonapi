@@ -82,6 +82,7 @@ public class AdminController {
     @PutMapping("/employees")
     public ResponseEntity<?> updateEmployee(@RequestBody Employee employee) {
         validateEmployee(employee);
+        if(employee.getId() == null) return ResponseEntity.badRequest().body("Employee Id is required for update");
         employeeService.updateEmployee(employee);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -98,6 +99,7 @@ public class AdminController {
     @PutMapping("/skills")
     public ResponseEntity<?> updateSkill(@RequestBody Skill skill) {
         validateSkill(skill);
+        if(skill.getId() == 0) return ResponseEntity.badRequest().body("Skill Id required for update.");
         skillService.updateSkill(skill);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -121,7 +123,9 @@ public class AdminController {
     @Secured({"ROLE_ADMIN"})
     @PostMapping("/shifts")
     public ResponseEntity<?> createShift(@RequestBody EmployeeShift shift) {
+        log.info("validating shift: " + shift);
         validateShift(shift);
+        log.info("shift was validated");
         shiftService.createShift(shift);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -147,6 +151,7 @@ public class AdminController {
     @PutMapping("/shifts")
     public ResponseEntity<?> updateShift(@RequestBody EmployeeShift shift) {
         validateShift(shift);
+        if(shift.getId() == null) return ResponseEntity.badRequest().body("Shift Id is required for update.");
         shiftService.updateShift(shift);
         return ResponseEntity.noContent().build();
     }

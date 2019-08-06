@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface EmployeeShiftDAO extends Dao<EmployeeShift> {
     List<EmployeeShift> getAllForEmployee(Employee employee);
-    Optional<EmployeeShift> getForEmployeeForDay(Employee employee, String day);
+    Optional<EmployeeShift> getForEmployeeForDay(Employee employee, int day);
 }

@@ -91,14 +91,14 @@ public class EmployeeShiftDAOImpl implements EmployeeShiftDAO {
     }
 
     @Override
-    public Optional<EmployeeShift> getForEmployeeForDay(Employee employee, String day) {
-       return Optional.ofNullable(jdbcTemplate.queryForObject(
-                        "SELECT * FROM employee_shifts WHERE employees_id=? AND day=?",
-                        new Object[] {
-                                employee.getId(),
-                                day
-                        },
-                        new EmployeeShiftRowMapper()
-                ));
+    public Optional<EmployeeShift> getForEmployeeForDay(Employee employee, int day) {
+        String sql = "SELECT * FROM employee_shifts WHERE employees_id=? AND day=?";
+        return jdbcTemplate.query(
+                sql,
+                rs -> rs.next() ? Optional.ofNullable(new EmployeeShiftRowMapper().mapRow(rs, 1))
+                        : Optional.empty(),
+                employee.getId(),
+                day
+        );
     }
 }

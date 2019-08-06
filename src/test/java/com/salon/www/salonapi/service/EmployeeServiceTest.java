@@ -174,9 +174,9 @@ public class EmployeeServiceTest {
         given(employeeDao.getBookingsForDate(anyLong(), any())).willReturn(null);
 
         Timestamp time = new Timestamp(new GregorianCalendar(2019, 7, 3).getTimeInMillis());
-        List<Booking> shifts = employeeService.getEmployeeBookingsForDate(13L, time);
+        List<Booking> bookings = employeeService.getEmployeeBookingsForDate(13L, time);
         then(employeeDao).should(times(1)).getBookingsForDate(13L, time);
-        assertThat(shifts).isNullOrEmpty();
+        assertThat(bookings).isNullOrEmpty();
     }
 
     @Test
@@ -305,10 +305,4 @@ public class EmployeeServiceTest {
 
         assertThat(hasSkills).isFalse();
     }
-
-//    public Boolean employeeHasSkills(long employeeId, List<Skill> skills) {
-//
-//        List<Skill> employeeSkills = getEmployeeSkills(employeeId);
-//        return employeeSkills.containsAll(skills);
-//    }
 }
