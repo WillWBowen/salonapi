@@ -28,4 +28,11 @@ public class Customer {
         this.firstName = firstName;
         this.lastName = lastName;
     }
+
+    public Customer(NewUser user) {
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.email = user.getEmail();
+        this.phone = user.getPhone();
+    }
 }

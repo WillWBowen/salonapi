@@ -1,8 +1,12 @@
 package com.salon.www.salonapi.model.security;
 
+import com.salon.www.salonapi.model.NewUser;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Date;
 import java.util.List;
@@ -30,6 +34,12 @@ public class User {
         this.username = username;
         this.password = password;
         this.email = email;
+    }
+
+    public User(NewUser newUser) {
+            this.username = newUser.getUsername();
+            this.password =newUser.getPassword();
+            this.email = newUser.getEmail();
     }
 
 }

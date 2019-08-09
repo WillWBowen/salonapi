@@ -63,10 +63,12 @@ public class UserDAOImpl implements UserDAO {
     public void save(User user) {
         try {
             jdbcTemplate.update(
-                "INSERT INTO users(username, password, email) VALUES(?,?, ?)",
+                "INSERT INTO users(username, password, email, enabled) VALUES(?,?,?,?)",
                 user.getUsername(),
                 user.getPassword(),
-                user.getEmail());
+                user.getEmail(),
+                user.getEnabled()
+            );
         } catch(Exception ex) {
             throw new UserCreationFailedException();
         }

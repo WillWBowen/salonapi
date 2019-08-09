@@ -33,6 +33,6 @@ public class JwtUserDetailsService implements UserDetailsService {
             log.error("No user found with username '{}'", username);
             throw new UsernameNotFoundException(String.format("No user found with username '%s'", username));
         }
-
     }
+
 }

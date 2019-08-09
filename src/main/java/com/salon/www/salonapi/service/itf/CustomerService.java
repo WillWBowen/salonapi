@@ -1,6 +1,5 @@
 package com.salon.www.salonapi.service.itf;
 
-import com.salon.www.salonapi.exception.CustomerNotFoundException;
 import com.salon.www.salonapi.model.Booking;
 import com.salon.www.salonapi.model.Customer;
 
@@ -10,6 +9,8 @@ import java.util.List;
 public interface CustomerService {
     List<Customer> getCustomers();
     Customer getCustomer(Long customerId);
+
+    Customer getCustomerByEmail(String email);
 
     List<Booking> getCustomerBookingsForDate(Long customerId, Timestamp date);
 

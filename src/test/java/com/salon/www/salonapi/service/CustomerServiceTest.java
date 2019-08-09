@@ -73,6 +73,27 @@ public class CustomerServiceTest {
     }
 
     @Test
+    public void getCustomerByEmail_shouldReturnCustomer_ifPresent() {
+        Customer customer = new Customer(10L, 4L, "first", "name");
+        given(customerDAO.getCustomerByEmail(anyString())).willReturn(Optional.of(customer));
+
+        Customer returnedCustomer = customerService.getCustomerByEmail("Test@email.com");
+
+        then(customerDAO).should(times(1)).getCustomerByEmail("Test@email.com");
+        assertThat(returnedCustomer).isEqualTo(customer);
+    }
+
+    @Test
+    public void getCustomerByEmail_shouldReturnNull_ifNotPresent() {
+        given(customerDAO.getCustomerByEmail(anyString())).willReturn(Optional.empty());
+
+        Customer returnedCustomer = customerService.getCustomerByEmail("Test@email.com");
+
+        then(customerDAO).should(times(1)).getCustomerByEmail("Test@email.com");
+        assertThat(returnedCustomer).isNull();
+    }
+
+    @Test
     public void getCustomers_shouldReturnListOfCustomers_ifPresent() {
         Customer first = new Customer(10L, 4L, "first", "name");
         Customer second = new Customer(14L, 2L, "second", "name");

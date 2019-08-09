@@ -1,5 +1,6 @@
 package com.salon.www.salonapi.controller;
 
+import com.google.gson.Gson;
 import com.salon.www.salonapi.exception.BadInputException;
 import com.salon.www.salonapi.model.Customer;
 import com.salon.www.salonapi.model.Employee;
@@ -30,44 +31,46 @@ public class AdminController {
     private SkillService skillService;
     private ShiftService shiftService;
 
+    private static final Gson gson = new Gson();
+
     @Secured({"ROLE_ADMIN"})
     @GetMapping("/customers")
-    public ResponseEntity<List<Customer>> getCustomers() {
+    public ResponseEntity<?> getCustomers() {
                 List<Customer> customers = customerService.getCustomers();
         if(customers == null) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(customers, HttpStatus.OK);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(gson.toJson(customers));
     }
 
     @Secured({"ROLE_ADMIN"})
     @GetMapping("/customers/{id}")
-    public ResponseEntity<Customer> getCustomer(@PathVariable("id") Long customerId) {
+    public ResponseEntity<?> getCustomer(@PathVariable("id") Long customerId) {
         Customer customer = customerService.getCustomer(customerId);
         if(customer == null) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(customer, HttpStatus.OK);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(gson.toJson(customer));
     }
 
     @Secured({"ROLE_ADMIN"})
     @GetMapping("/employees")
-    public ResponseEntity<List<Employee>> getEmployees() {
+    public ResponseEntity<?> getEmployees() {
         List<Employee> employees = employeeService.getEmployees();
         if(employees == null) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(employees, HttpStatus.OK);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(gson.toJson(employees));
     }
 
     @Secured({"ROLE_ADMIN"})
     @GetMapping("/employees/{id}")
-    public ResponseEntity<Employee> getEmployee(@PathVariable("id") Long employeeId) {
+    public ResponseEntity<?> getEmployee(@PathVariable("id") Long employeeId) {
        Employee employee = employeeService.getEmployee(employeeId);
        if(employee == null) {
            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
        }
-       return new ResponseEntity<>(employee, HttpStatus.OK);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(gson.toJson(employee));
     }
 
     @Secured({"ROLE_ADMIN"})
@@ -75,7 +78,7 @@ public class AdminController {
     public ResponseEntity<?> createEmployee(@RequestBody Employee employee) {
         validateEmployee(employee);
         employeeService.createEmployee(employee);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return ResponseEntity.created(null).contentType(MediaType.APPLICATION_JSON_UTF8).build();
     }
 
     @Secured({"ROLE_ADMIN"})
@@ -84,7 +87,7 @@ public class AdminController {
         validateEmployee(employee);
         if(employee.getId() == null) return ResponseEntity.badRequest().body("Employee Id is required for update");
         employeeService.updateEmployee(employee);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.noContent().build();
     }
 
     @Secured({"ROLE_ADMIN"})
@@ -92,7 +95,7 @@ public class AdminController {
     public ResponseEntity<?> createSkill(@RequestBody Skill skill) {
         validateSkill(skill);
         skillService.createSkill(skill);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return ResponseEntity.created(null).contentType(MediaType.APPLICATION_JSON_UTF8).build();
     }
 
     @Secured({"ROLE_ADMIN"})
@@ -101,23 +104,23 @@ public class AdminController {
         validateSkill(skill);
         if(skill.getId() == 0) return ResponseEntity.badRequest().body("Skill Id required for update.");
         skillService.updateSkill(skill);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.noContent().build();
     }
 
     @Secured({"ROLE_ADMIN"})
     @GetMapping("/skills/{id}")
-    public ResponseEntity<Skill> getSkill(@PathVariable("id") Long id) {
+    public ResponseEntity<?> getSkill(@PathVariable("id") Long id) {
         Skill skill = skillService.getSkill(id);
         if(skill == null) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        return new ResponseEntity<>(skill, HttpStatus.OK);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(gson.toJson(skill));
     }
 
     @Secured({"ROLE_ADMIN"})
     @GetMapping("/skills")
-    public ResponseEntity<List<Skill>> getSkills() {
+    public ResponseEntity<?> getSkills() {
         List<Skill> skills = skillService.getSkills();
         if (skills == null) return ResponseEntity.noContent().build();
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(skills);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(gson.toJson(skills));
     }
 
     @Secured({"ROLE_ADMIN"})
@@ -127,39 +130,39 @@ public class AdminController {
         validateShift(shift);
         log.info("shift was validated");
         shiftService.createShift(shift);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return ResponseEntity.created(null).contentType(MediaType.APPLICATION_JSON_UTF8).build();
     }
 
     @Secured({"ROLE_ADMIN"})
     @GetMapping("/shifts/{id}")
-    public ResponseEntity<EmployeeShift> getShift(@PathVariable("id") Long shiftId) {
+    public ResponseEntity<?> getShift(@PathVariable("id") Long shiftId) {
         log.info("Shift Id: " + shiftId);
         EmployeeShift shift = shiftService.getShift(shiftId);
         if(shift == null) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        return ResponseEntity.ok().body(shift);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(gson.toJson(shift));
     }
 
     @Secured({"ROLE_ADMIN"})
     @GetMapping("/shifts")
-    public ResponseEntity<List<EmployeeShift>> getShifts() {
+    public ResponseEntity<?> getShifts() {
         List<EmployeeShift> shifts = shiftService.getShifts();
         if(shifts == null) return ResponseEntity.noContent().build();
-        return ResponseEntity.ok(shifts);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(gson.toJson(shifts));
     }
 
     @Secured({"ROLE_ADMIN"})
     @PutMapping("/shifts")
     public ResponseEntity<?> updateShift(@RequestBody EmployeeShift shift) {
         validateShift(shift);
-        if(shift.getId() == null) return ResponseEntity.badRequest().body("Shift Id is required for update.");
+        if(shift.getId() == null) return ResponseEntity.badRequest().body(gson.toJson("Shift Id is required for update."));
         shiftService.updateShift(shift);
         return ResponseEntity.noContent().build();
     }
 
     @ExceptionHandler({BadInputException.class})
-    public ResponseEntity<String> handleAuthenticationException(BadInputException e) {
+    public ResponseEntity<?> handleAuthenticationException(BadInputException e) {
         log.error(e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(gson.toJson(e.getMessage()));
     }
 
     private void validateEmployee(Employee employee) throws BadInputException {

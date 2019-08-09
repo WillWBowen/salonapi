@@ -36,6 +36,11 @@ public class CustomerServiceImpl implements CustomerService {
         return customerDao.get(customerId).orElse(null);
     }
 
+    @Override
+    public Customer getCustomerByEmail(String email) {
+        return customerDao.getCustomerByEmail(email).orElse(null);
+    }
+
     public List<Booking> getCustomerBookingsForDate(Long customerId, Timestamp date) {
         return customerDao.getBookingsForDate(customerId, date);
     }

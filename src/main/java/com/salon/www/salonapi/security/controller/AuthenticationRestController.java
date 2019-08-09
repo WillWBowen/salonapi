@@ -1,5 +1,6 @@
 package com.salon.www.salonapi.security.controller;
 
+import com.google.gson.Gson;
 import com.salon.www.salonapi.model.security.JwtAuthenticationRequest;
 import com.salon.www.salonapi.security.JwtTokenUtil;
 import com.salon.www.salonapi.model.security.JwtAuthenticationResponse;
@@ -31,6 +32,8 @@ public class AuthenticationRestController {
     private JwtTokenUtil jwtTokenUtil;
     private UserDetailsService userDetailsService;
 
+    private static final Gson gson = new Gson();
+
     @Autowired
     public AuthenticationRestController(JwtTokenUtil jwtTokenUtil,
                               @Qualifier("jwtUserDetailsService") UserDetailsService userDetailsService,
@@ -44,7 +47,7 @@ public class AuthenticationRestController {
 
     @RequestMapping(value="${jwt.route.authentication.path}", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest) throws JwtAuthenticationException {
-        log.info("Request recieved, running createAuthenticationToken");
+        log.info("Request received, running createAuthenticationToken");
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
         // Reload password post-security so we can generate the token
@@ -52,7 +55,7 @@ public class AuthenticationRestController {
         final String token = jwtTokenUtil.generateToken(userDetails);
 
         // Return the token
-        return ResponseEntity.ok(new JwtAuthenticationResponse(token));
+        return ResponseEntity.ok(gson.toJson(new JwtAuthenticationResponse(token)));
     }
 
     @RequestMapping(value="${jwt.route.authentication.refresh}", method = RequestMethod.GET)
@@ -64,7 +67,7 @@ public class AuthenticationRestController {
 
         if(jwtTokenUtil.canTokenBeRefreshed(token, user.getLastPasswordResetDate())) {
             String refreshedToken = jwtTokenUtil.refreshToken(token);
-            return ResponseEntity.ok(new JwtAuthenticationResponse(refreshedToken));
+            return ResponseEntity.ok(gson.toJson(new JwtAuthenticationResponse(refreshedToken)));
         } else {
             return ResponseEntity.badRequest().body(null);
         }
@@ -72,7 +75,7 @@ public class AuthenticationRestController {
 
     @ExceptionHandler({JwtAuthenticationException.class})
     public ResponseEntity<String> handleAuthenticationException(JwtAuthenticationException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(gson.toJson(e.getMessage()));
     }
 
     private void authenticate(String username, String password) throws JwtAuthenticationException {

@@ -94,7 +94,7 @@ public class CustomerDAOImpl implements CustomerDAO {
                     customer.getPhone()
             );
         } catch (Exception ex) {
-            throw new CustomerCreationFailedException();
+            throw new CustomerCreationFailedException("Failed to create customer.");
         }
     }
 

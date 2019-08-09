@@ -19,6 +19,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -29,6 +34,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private JwtUserDetailsService jwtUserDetailsService;
     // Custom JWT based security filter
     private JwtAuthorizationTokenFilter authenticationTokenFilter;
+    private CorsFilter corsFilter;
 
     @Value("${jwt.header}")
     private String tokenHeader;
@@ -37,22 +43,26 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private String authenticationPath;
 
     @Autowired
-    public WebSecurityConfig(JwtAuthenticationEntryPoint unauthorizedHandler, JwtUserDetailsService jwtUserDetailsService, JwtAuthorizationTokenFilter authenticationTokenFilter) {
+    public WebSecurityConfig(JwtAuthenticationEntryPoint unauthorizedHandler,
+                             JwtUserDetailsService jwtUserDetailsService,
+                             JwtAuthorizationTokenFilter authenticationTokenFilter,
+                             CorsFilter corsFilter) {
 
         this.unauthorizedHandler = unauthorizedHandler;
         this.jwtUserDetailsService = jwtUserDetailsService;
         this.authenticationTokenFilter = authenticationTokenFilter;
+        this.corsFilter = corsFilter;
     }
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth
                 .userDetailsService(jwtUserDetailsService)
-                .passwordEncoder(passwordEncoderBean());
+                .passwordEncoder(passwordEncoder());
     }
 
     @Bean
-    public PasswordEncoder passwordEncoderBean() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -72,6 +82,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
                 .antMatchers("/auth/**").permitAll()
+                .antMatchers("/customers/new").permitAll()
                 .anyRequest().authenticated();
 
         httpSecurity

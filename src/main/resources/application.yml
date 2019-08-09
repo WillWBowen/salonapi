@@ -4,9 +4,9 @@ spring:
   resources:
     add-mappings: false
   datasource:
-    url: jdbc:mysql://localhost:3306/library
-    username: salonapi
-    password: password
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DB:library}
+    username: ${MYSQL_USERNAME:salonapi}
+    password: ${MYSQL_PASSWORD:password}
     driver-class-name: com.mysql.cj.jdbc.Driver
     tomcat:
       initial-size: 3

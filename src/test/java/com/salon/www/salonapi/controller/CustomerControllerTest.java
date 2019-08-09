@@ -3,8 +3,11 @@ package com.salon.www.salonapi.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.salon.www.salonapi.model.Customer;
+import com.salon.www.salonapi.model.NewUser;
+import com.salon.www.salonapi.model.security.User;
 import com.salon.www.salonapi.security.JwtTokenUtil;
 import com.salon.www.salonapi.service.itf.CustomerService;
+import com.salon.www.salonapi.service.itf.UserService;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.junit.Before;
@@ -14,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,11 +27,11 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Arrays;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -50,6 +55,8 @@ public class CustomerControllerTest {
 
     @MockBean
     private CustomerService customerService;
+    @MockBean
+    private UserService userService;
 
     @Before
     @SneakyThrows
@@ -61,6 +68,7 @@ public class CustomerControllerTest {
                 .build();
         mapper = new ObjectMapper()
                 .registerModule(new JavaTimeModule());
+
     }
 
     @Test
@@ -118,10 +126,15 @@ public class CustomerControllerTest {
 
     @Test
     public void createCustomer_shouldReturnCreated() throws Exception {
-        Customer customer = new Customer(1L, "first", "name");
-        doNothing().when(customerService).createCustomer(customer);
-        String json = mapper.writeValueAsString(customer);
-        mockMvc.perform(post("/customers")
+        NewUser newUser = new NewUser("First", "Last", "First.Last@test.com", "password", "testUser", "5555555555");
+        User user = new User(newUser);
+        Customer customer = new Customer(newUser);
+        when(userService.getUser(any())).thenReturn(null, user);
+        when(customerService.getCustomerByEmail(anyString())).thenReturn(null, customer);
+        doNothing().when(userService).createUser(any());
+        doNothing().when(customerService).createCustomer(any());
+        String json = mapper.writeValueAsString(newUser);
+        mockMvc.perform(post("/customers/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(json))
@@ -131,14 +144,14 @@ public class CustomerControllerTest {
 
     @Test
     public void createCustomer_shouldReturnBadRequest_withBadInput() throws Exception {
-        Customer customer = new Customer();
-        String json = mapper.writeValueAsString(customer);
-        mockMvc.perform(post("/customers")
+        NewUser newUser = new NewUser();
+        String json = mapper.writeValueAsString(newUser);
+        mockMvc.perform(post("/customers/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isBadRequest());
-        then(customerService).should(times(0)).createCustomer(customer);
+        then(customerService).should(times(0)).createCustomer(any());
     }
 
     @Test
