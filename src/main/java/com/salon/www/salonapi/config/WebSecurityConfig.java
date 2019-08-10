@@ -81,8 +81,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // don't create a session
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
-                .antMatchers("/auth/**").permitAll()
-                .antMatchers("/customers/new").permitAll()
+                .antMatchers("/customers/new", "/auth/**", "/home").permitAll()
                 .anyRequest().authenticated();
 
         httpSecurity
